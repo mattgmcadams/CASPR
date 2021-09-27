@@ -83,16 +83,16 @@ compare:
 		js		less 
 		jz		equal
 greater:
-		ldl		r0,		0x8765
-		ldh		r0,		0x4321
+		ldh		r0,		0x8765
+		ldl		r0,		0x4321
 		jmp		show
 less:	
-		ldl		r0,		0x1234
-		ldh		r0,		0x5678
+		ldh		r0,		0x1234
+		ldl		r0,		0x5678
 		jmp 	show
 equal:	
-		ldl		r0,		0x0101
 		ldh		r0,		0x0101
+		ldl		r0,		0x0101
 		jmp 	show
 show:
 ;show the numbers on the 7seg

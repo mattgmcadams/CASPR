@@ -91,16 +91,16 @@ sgncmp: cmp		r0,		r1
 		js		less 
 		jz		equal
 greater:
-		ldl		r0,		0x10FE
-		ldh		r0,		0xDCBA
+		ldh		r0,		0x10FE
+		ldl		r0,		0xDCBA
 		jmp		show
 less:	
-		ldl		r0,		0xABCD
-		ldh		r0,		0xEF01
+		ldh		r0,		0xABCD
+		ldl		r0,		0xEF01
 		jmp 	show
 equal:	
-		ldl		r0,		0x1212
 		ldh		r0,		0x1212
+		ldl		r0,		0x1212
 		jmp 	show
 show:
 ;show the numbers on the 7seg
