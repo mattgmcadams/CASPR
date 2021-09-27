@@ -86,7 +86,7 @@ end:
     ;print "DONE"
         ldi r3, done
         stm string, r3
-        prints  
+        sys prints  
 print:
     ;store fn to string, print
         ldi r3, fn
@@ -126,4 +126,3 @@ justn:
     byte 0x3A       ; ':'
     byte 0x20       ; ' '
     byte 0x00       ; NULL
-    
