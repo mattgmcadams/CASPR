@@ -55,46 +55,75 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	1		;clear r0
+top:	ldi		r0, 	0		;clear r0
 		ldi		r1, 	0		;clear r1
-		ldi		r2,		0
-		ldi		r3,		0
 		stm		format, r0		;format=DECIMAL
-		ldi		r0,		0
-		ldm		r0, 	inport	;load state of switches into r3
-		ldi		r1, 	0x000f		
-		and		r0,		r1		;clear all but last 4 bits
-		stm		numA,		r0 		;store in r2
-		ldm		r0,		inport	;restore r0 to state of switches
-		ldi		r1, 	0x00f0
-		and		r0, 	r1		;delete unused portion of r0
-		ror		r0, 	4		;rotate right 4 bits
-		stm		numB,		r0		;store in r3	
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;compare the vals of registers r2 and r3
-;if r2 < r3, (s=1)		write 0x12345678 to led
-;if r2 = r3, (z=1)		write 0x01010101 to led
-;if r2 > r3, (else)		write 0x87654321 to led
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-compare:
-		ldm		r0,		numA
-		ldm		r1, 	numB
-		cmp		r0,		r1
-		js		less 
-		jz		equal
-greater:
-		ldl		r0,		0x8765
-		ldh		r0,		0x4321
-		jmp		show
-less:	
-		ldl		r0,		0x1234
-		ldh		r0,		0x5678
-		jmp 	show
-equal:	
-		ldl		r0,		0x0101
-		ldh		r0,		0x0101
-		jmp 	show
-show:
-;show the numbers on the 7seg
-		stm		outport, r0	
-		jmp		top				;enter endless loop here
+    ;initialize first and second terms (r0, r1)
+        ldi r0, 1
+        ldi r1, 1
+    ;initialize n to increment (r2)
+        ldi r2, 2
+loop:   
+    ;increment n
+        adi r2, 1
+    ;get next term (store in r0)
+        add r0, r1
+    ;print n, print term
+        call print
+    ;if overflow has occurred, jump to end:
+        jv end    
+    ;else, increment n
+        adi r2, 1
+        ;get next term (store in r1)
+        add r1, r0
+        ;print n, print term
+        call print
+    ;if overflow hasn't occurred, jump to loop:
+        jnv loop
+    ;else, store val of r1 in r0 and proceed to end:
+        ldm r0, r1
+end:
+    ;print "DONE"
+        ldi r3, done
+        stm string, r3
+        prints  
+print:
+    ;store fn to string, print
+        ldi r3, fn
+        stm string, r3
+        sys prints
+    ;store r0 to tnum, printn
+        stm tnum, r0
+        sys printn
+    ;store n to string, prints
+        ldi r3, justn
+        stm string, r3
+        sys prints
+    ;store r2 to tnum, print
+        stm tnum, r2
+        sys printn
+        ret
+done:
+    byte 0x0D       ; CR
+    byte D
+    byte O
+    byte N
+    byte E
+    byte 0x00       ; NULL
+fn: 
+    byte 0x0D       ; CR
+    byte F
+    byte n 
+    byte 0x3A
+    byte 0x20       ; ' '
+    byte 0x00       ; NULL
+justn:
+    byte 0x20       ; ' '
+    byte 0x20       ; ' '
+    byte 0x20       ; ' '
+    byte 0x20       ; ' '
+    byte n
+    byte 0x3A       ; ':'
+    byte 0x20       ; ' '
+    byte 0x00       ; NULL
+    
