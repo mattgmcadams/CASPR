@@ -58,7 +58,7 @@
 top:	ldi		r0, 	0		;clear r0
         stm     tx,     r0
         stm     ty,     r0
-		stm		format, r0		;format=DECIMAL
+	stm	format, r0		;format=DECIMAL
         sys     clear
         ldi     r1,     1       ;initialize first and second terms (r0, r1)
         ldi     r2,     2       ;initialize n to increment (r2)
