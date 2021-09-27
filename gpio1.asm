@@ -55,19 +55,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	0		;clear r0
+top:	ldi		r0, 	1		;clear r0
 		ldi		r1, 	0		;clear r1
-		ldi		r0, 	inport	;load state of switches into r3
-		ldi		r1, 	0x0F	
+		ldi		r2,		0
+		ldi		r3,		0
+		stm		format, r0		;format=DECIMAL
+		ldi		r0,		0
+		ldm		r0, 	inport	;load state of switches into r3
+		ldi		r1, 	0x000f		
 		and		r0,		r1		;clear all but last 4 bits
-		ldm		r2,		r0 		;store in r2
-		ldi		r0,		inport	;restore r0 to state of switches
-		ror		r0, 	4		;rotate right 4 bits
+		stm		numA,		r0 		;store in r2
+		ldm		r0,		inport	;restore r0 to state of switches
+		ldi		r1, 	0x00f0
 		and		r0, 	r1		;delete unused portion of r0
-		ldm		r3,		r0		;store in r3
-		call	compare			; call the compare function
-		jmp		top				;enter endless loop here
-
+		ror		r0, 	4		;rotate right 4 bits
+		stm		numB,		r0		;store in r3	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;compare the vals of registers r2 and r3
 ;if r2 < r3, (s=1)		write 0x12345678 to led
@@ -75,33 +77,52 @@ top:	ldi		r0, 	0		;clear r0
 ;if r2 > r3, (else)		write 0x87654321 to led
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 compare:
-		stm		numA,	r2
-		stm		numB,	r3
-		cmp		r2,		r3
+		ldm		r0,		numA
+		ldm		r1, 	numB
+		cmp		r0,		r1
 		js		less 
 		jz		equal
 greater:
-		ldh		r1,		0x87
-		ldl		r1,		0x65
-		ldh		r0,		0x43
-		ldl		r0,		0x21
+		ldl		r0,		0x8765
+		ldh		r0,		0x4321
 		jmp		show
 less:	
-		ldh		r1,		0x12
-		ldl		r1,		0x34
-		ldh		r0,		0x56
-		ldl		r0,		0x78
+		ldl		r0,		0x1234
+		ldh		r0,		0x5678
 		jmp 	show
 equal:	
-		ldh		r1,		0x01
-		ldl		r1,		0x01
-		ldh		r0,		0x01
-		ldl		r0,		0x01
+		ldl		r0,		0x0101
+		ldh		r0,		0x0101
 		jmp 	show
 show:
 ;show the numbers on the 7seg
-low:	stm		outport, r0
-high:	stm		outport, r1
-		ldm		r2, 	numA
-		ldm		r3,		numB
+		stm		outport, r0	
+		call wait
+		jmp		top				;enter endless loop here
+
+
+wait:
+		ldl		r7,		0
+		ldh		r7,		0x10
+dly:	adi		r7, 	0xFFFF
+		jnz 	dly
+		ldm 	r7, 	trdy
+		cmpi 	r7, 	1
+		jz 		wait
+wait0:
+		ldm 	r7, 	trdy
+		cmpi	r7, 	0
+		jz 		wait0
+		ldm 	r7, 	tcnt
+		cmpi 	r7, 	1
+		jnz 	wait
+		ldm 	r7,		tx1
+		ldm 	r6, 	oldx
+		cmp 	r7, 	r6
+		jz 		wait
+		stm 	oldx, 	r7 
 		ret
+
+newln:	byte 0x0D
+		byte 0x3E
+		byte 0x00
