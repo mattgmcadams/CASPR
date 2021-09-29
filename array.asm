@@ -48,78 +48,74 @@
 .define y2		0x090F	;y2
 .define rad		0x0910	;radius for circle
 .define	string	0x0911	;string pointer
-.define oldx	0x0801	;oldx for touch screen
-.define sw1		0x0802	;first sw
-.define numA	0x0805	;numA for lab2
-.define numB	0x0806	;numB for lab2
+.define array_A 0x0800
+.define array_B 0x0808
+.define array_C 0x0810
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	0		;clear r0
+top:	ldi		r0, 	0		;clear r0 (acc)
         stm     tx,     r0
         stm     ty,     r0
-	stm	format, r0		;format=DECIMAL
+	    stm	    format, r0		;format=DECIMAL
         sys     clear
-        ldi     r1,     1       ;initialize first and second terms (r0, r1)
-        ldi     r2,     2       ;initialize n to increment (r2)
-loop:   
-        adi     r2,     1       ;increment n
-        add     r0,     r1      ;get next term (store in r0)
-        jv      done            ;if overflow has occurred, jump to done 
-        mov     r4,     r0      ;print n, print term
-        call    print
-        adi     r2,     1       ;else, increment n
-        add     r1,     r0      ;get next term (store in r1)
-        jv      done            ;if overflow has occurred, jump to done:
-        mov     r4,     r1      ;print n, print term
-        call    print
-        jmp     loop
-done:       ;print "DONE"
-        ldi     r3,     donestr
-        stm     string, r3
-        sys     prints  
-end:    jmp     end
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;print fn, and n
-;args: r4
-;vars: r3
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-print:
-    ;store fn to string, print
-        ldi     r3,     fn
-        stm     string, r3
-        sys     prints
-    ;store r0 to tnum, printn
-        stm     tnum,   r4        
-        sys     printn
-    ;store n to string, prints
-        ldi     r3,     justn
-        stm     string, r3
-        sys     prints
-    ;store r2 to tnum, print
-        stm     tnum,   r2
-        sys     printn
+        ldi     r1,     array_A ; arrayA*
+        ldi     r2,     array_B ; arrayB*
+        ldi     r3,     array_C ; arrayC*
+        call    copy
+        
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
+;COPY
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+copy:   push    r0
+        push    r1
+        push    r2
+        push    r3
+        push    r4
+        push    r5
+        push    r7 
+        ldi     r1, array_A
+        ldi     r2, arrA
+        ldi     r3, array_B
+        ldi     r4, arrB
+        ldi     r7, 0x8
+loop:   ldr r0, r2
+        str r1, r0
+        ldr r5, r4
+        str r3, r5
+        adi r1, 1
+        adi r2, 1
+        adi r3, 1
+        adi r4, 1
+        adi r7, 0xFFFF
+        jns loop
+end:    pop r7 
+        pop r5
+        pop r4
+        pop r3
+        pop r2
+        pop r1
+        pop r0
         ret
-donestr:
-        byte    0x0D       ; CR
-        byte    D
-        byte    O
-        byte    N
-        byte    E
-        byte    0x00       ; NULL
-fn: 
-        byte    0x0D       ; CR
-        byte    F
-        byte    n 
-        byte    0x3A
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
-justn:
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    n
-        byte    0x3A       ; ':'
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+arrA:
+        byte    0x01
+        byte    0x03
+        byte    0x05
+        byte    0x07
+        byte    0x0B
+        byte    0x0D
+        byte    0x11
+        byte    0x13
+        byte    0x00
+arrB:
+        byte    0x01
+        byte    0x01
+        byte    0x02
+        byte    0x03
+        byte    0x05
+        byte    0x08
+        byte    0x0D
+        byte    0x15
+        byte    0x00

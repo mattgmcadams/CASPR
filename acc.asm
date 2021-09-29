@@ -55,71 +55,56 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	0		;clear r0
+top:	ldi		r0, 	0		;clear r0 (acc)
         stm     tx,     r0
         stm     ty,     r0
-	stm	format, r0		;format=DECIMAL
+	    stm	    format, r0		;format=DECIMAL
         sys     clear
-        ldi     r1,     1       ;initialize first and second terms (r0, r1)
-        ldi     r2,     2       ;initialize n to increment (r2)
-loop:   
-        adi     r2,     1       ;increment n
-        add     r0,     r1      ;get next term (store in r0)
-        jv      done            ;if overflow has occurred, jump to done 
-        mov     r4,     r0      ;print n, print term
-        call    print
-        adi     r2,     1       ;else, increment n
-        add     r1,     r0      ;get next term (store in r1)
-        jv      done            ;if overflow has occurred, jump to done:
-        mov     r4,     r1      ;print n, print term
-        call    print
-        jmp     loop
-done:       ;print "DONE"
-        ldi     r3,     donestr
-        stm     string, r3
-        sys     prints  
-end:    jmp     end
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;print fn, and n
-;args: r4
-;vars: r3
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-print:
-    ;store fn to string, print
-        ldi     r3,     fn
+        stm     time0,  r0      ;reset timer
+        ldi     r1,     1       ;n=1
+acc:    add     r0,     r1      ;acc += n
+        adi     r1,     1       ;n += 1
+        cmpi    r1,     0x2711  ;compare n ~ 0x2710
+        jnz     acc             ;if not zero, jump to acc:
+        ;else, 
+        ldm     r2,     time0   ;read timer
+        ldi     r3,     sumstr  ;print sum
         stm     string, r3
         sys     prints
-    ;store r0 to tnum, printn
-        stm     tnum,   r4        
-        sys     printn
-    ;store n to string, prints
-        ldi     r3,     justn
+        stm     tnum,   r0      
+        sys     printn  
+        ldi     r3,     timestr    
         stm     string, r3
-        sys     prints
-    ;store r2 to tnum, print
-        stm     tnum,   r2
+        sys     prints 
+        stm     tnum,   r2      ;print timer
         sys     printn
-        ret
-donestr:
-        byte    0x0D       ; CR
-        byte    D
-        byte    O
-        byte    N
-        byte    E
-        byte    0x00       ; NULL
-fn: 
-        byte    0x0D       ; CR
-        byte    F
-        byte    n 
+        ldi     r3,     secstr
+        stm     string, r3
+        sys     prints 
+        
+exit:   jmp     exit
+;
+secstr:
+        byte    0x0B
+        byte    s
+        byte    0x00
+
+sumstr: 
+        byte    0x0D
+        byte    s
+        byte    u
+        byte    m
         byte    0x3A
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
-justn:
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    n
-        byte    0x3A       ; ':'
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
+        byte    0x20
+        byte    0x20
+        byte    0x00
+
+timestr:
+        byte    0x0D
+        byte    t
+        byte    i
+        byte    m
+        byte    e
+        byte    0x3A
+        byte    0x20
+        byte    0x00
