@@ -48,78 +48,92 @@
 .define y2		0x090F	;y2
 .define rad		0x0910	;radius for circle
 .define	string	0x0911	;string pointer
-.define oldx	0x0801	;oldx for touch screen
-.define sw1		0x0802	;first sw
-.define numA	0x0805	;numA for lab2
-.define numB	0x0806	;numB for lab2
+.define matrix_A 0x0800	;matrix A
+.define matrix_B 0x0810 ;matrix B
+.define matrix_C 0x0820 ;matrix C
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+.define size 4			;matrix size
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 top:	ldi		r0, 	0		;clear r0
+		ldi		r1, 	0
+		ldi		r2, 	0
         stm     tx,     r0
         stm     ty,     r0
-	stm	format, r0		;format=DECIMAL
+	    stm	    format, r0		;format=DECIMAL
         sys     clear
-        ldi     r1,     1       ;initialize first and second terms (r0, r1)
-        ldi     r2,     2       ;initialize n to increment (r2)
-loop:   
-        adi     r2,     1       ;increment n
-        add     r0,     r1      ;get next term (store in r0)
-        jv      done            ;if overflow has occurred, jump to done 
-        mov     r4,     r0      ;print n, print term
-        call    print
-        adi     r2,     1       ;else, increment n
-        add     r1,     r0      ;get next term (store in r1)
-        jv      done            ;if overflow has occurred, jump to done:
-        mov     r4,     r1      ;print n, print term
-        call    print
-        jmp     loop
-done:       ;print "DONE"
-        ldi     r3,     donestr
-        stm     string, r3
-        sys     prints  
-end:    jmp     end
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;print fn, and n
-;args: r4
-;vars: r3
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-print:
-    ;store fn to string, print
-        ldi     r3,     fn
-        stm     string, r3
-        sys     prints
-    ;store r0 to tnum, printn
-        stm     tnum,   r4        
-        sys     printn
-    ;store n to string, prints
-        ldi     r3,     justn
-        stm     string, r3
-        sys     prints
-    ;store r2 to tnum, print
-        stm     tnum,   r2
-        sys     printn
-        ret
-donestr:
-        byte    0x0D       ; CR
-        byte    D
-        byte    O
-        byte    N
-        byte    E
-        byte    0x00       ; NULL
-fn: 
-        byte    0x0D       ; CR
-        byte    F
-        byte    n 
-        byte    0x3A
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
-justn:
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    0x20       ; ' '
-        byte    n
-        byte    0x3A       ; ':'
-        byte    0x20       ; ' '
-        byte    0x00       ; NULL
+;assign values matrix_A
+assnA:	ldi		r3,		0		;r3=i
+lp1:	ldi		r4,		0		;r4=j
+lp2:	ldi		r7,		size	;mat size
+		mul		r7,		r4		;r7=size*j
+		add		r7,		r3		;r7=size*j+i
+		ldi		r1,		matrix_A
+		add		r1,		r7		;r1=*A(i,j)
+		ldr		r0,		rand	;assign rand to r0
+		str		r1,		r0		;write to matrixA
+		adi		r4, 	1
+		cmpi	r4,		size
+		jnz		lp2
+		adi		r3,		1
+		cmpi	r3,		size
+		jnz		lp1
+;assign values matrix_B
+assnB:	ldi		r3,		0		;r3=i
+lp1:	ldi		r4,		0		;r4=j
+lp2:	ldi		r7,		size	;mat size
+		mul		r7,		r4		;r7=size*j
+		add		r7,		r3		;r7=size*j+i
+		ldi		r1,		matrix_B
+		add		r1,		r7		;r1=*A(i,j)
+		ldr		r0,		rand	;assign rand to r0
+		str		r1,		r0		;write to matrixA
+		adi		r4, 	1
+		cmpi	r4,		size
+		jnz		lp2
+		adi		r3,		1
+		cmpi	r3,		size
+		jnz		lp1
+;multiply and assign values to matrix_C
+mult:	ldi		r3,		0		;r3=i
+lp1:	ldi		r4,		0		;r4=j
+lp2:	ldi		r5,		0		;r5=k
+		ldi		r0,		0		;r6=sum
+lp3:	ldi		r7,		size	;mat size
+		mul		r7,		r5		;r7=size*k
+		add		r7,		r3		;r7=size*k+i
+		adi		r7,		matrix_A ;r7=*A(i,k)
+		ldr		r0,		r7		;r0=A(i,k)
+		ldi		r7,		size	;mat size
+		mul 	r7, 	r4		;r7=size*j
+		add 	r7, 	r5		;r7=size*j+k
+		adi 	r7, 	matrix_B ;r7=*B(k,j)
+		ldr 	r1, 	r7		;r1=B(1,
+		mul 	r0, 	r1		
+		add 	r6, 	r0		
+		adi 	r5, 	1		
+		cmpi	r5, 	size	
+		jnz 	lp3				
+		ldi 	r7, 	size		
+		mul 	r7, 	r4		
+		add 	r7, 	r3		
+		adi 	r7, 	r6		
+		str 	r7, 	r6		
+		adi 	r4, 	1		
+		cmpi 	r4, 	size		
+		jnz 	lp2					
+		adi 	r3, 	1		
+		cmpi 	r3, 	size		
+		jnz 	lp1					
+;exit
+exit:	jmp		exit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Addr:							;assuming ROW FIRST
+		ldm		r0, 	Matrix_I
+		ldm		r1		Matrix_J
+		ldm		r2,		Matrix_Isize
+		mul		r1,		r2
+		add		r0,		r1
+		add		r0,		matrix_A
+		stm		Matrix_mem, r0
