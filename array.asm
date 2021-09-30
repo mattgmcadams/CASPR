@@ -1,3 +1,7 @@
+;TODO
+;	implement timer
+;	format code
+;
 .arch 	rhody			;use rhody.cfg
 .outfmt hex				;output format is hex
 .memsize 2048			;specify 2K words
