@@ -135,7 +135,7 @@ lp2:	ldr r0, r2
 		adi r4, 1
 		adi r7, 0xffff
 		jns lp2
-		ldi r6, time0
+		ldm r6, time0
 		stm tnum, r6
 		ldi r5, timestr
 		stm string, r5
@@ -143,7 +143,7 @@ lp2:	ldr r0, r2
 		sys printn
 		ldi r5, secstr
 		stm string, r5
-		prints		
+		sys prints		
         pop 	r7
 		pop 	r6
 		pop 	r5
@@ -177,6 +177,7 @@ valsB:
         byte    0x15
         byte    0x00
 arrBeg:
+		byte	0x0D ; CR
 		byte	0x5b ; [
 		byte	0x20
 		byte	0x00
