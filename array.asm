@@ -48,58 +48,112 @@
 .define y2		0x090F	;y2
 .define rad		0x0910	;radius for circle
 .define	string	0x0911	;string pointer
-.define array_A 0x0800
-.define array_B 0x0808
-.define array_C 0x0810
+.define array_C 0x0800
+.define array_A 0x0808
+.define array_B 0x0810
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	0		;clear r0 (acc)
+top:	ldi		r0, 	0		;clear r0
+		ldi		r1, 	0
+		ldi		r2, 	0
         stm     tx,     r0
         stm     ty,     r0
 	    stm	    format, r0		;format=DECIMAL
         sys     clear
-        ldi     r1,     array_A ; arrayA*
-        ldi     r2,     array_B ; arrayB*
-        ldi     r3,     array_C ; arrayC*
-        call    copy
-        
-
+;cpy
+		ldi  r1, array_A
+		;ldi  r2, valsA
+		;ldi	 r7, 0x08 ;r7=i
+lp1:	ldi r2, 0x01
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x03
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x05
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x07
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x0b
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x0d
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x11
+		str r1, r2
+		adi r1, 1
+		ldi r2, 0x13
+		str r1, r2 
+		;
+		;ldr r0, r2 ;r0=vals[i]
+		;str r1, r0 ;A[i]=r0
+		;adi r1, 1
+		;adi r2, 1
+		;adi r7, 0xFFFF
+		;jns lp1
+        ;call    arr_add
+;print
+        ldi		r0, array_A
+		ldi		r1, 0
+		ldi		r2, 0
+		;ldi		r3, arrBeg
+		;stm		string, r3
+		;sys		prints
+		
+lp3:    ldr		r1, r0 
+        stm 	tnum, r1
+        sys 	printn
+		ldi		r3, arrMid
+		stm		string, r3
+		sys		prints
+        adi 	r0, 1
+		adi		r2, 1
+        cmpi	r2, 0x08
+        jnz 	lp3
+;end loop
+		;ldi		r3, arrEnd
+		;stm		string, r3
+		;sys		prints
+exit:	jmp		exit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
-;COPY
+;ADD
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-copy:   push    r0
-        push    r1
-        push    r2
-        push    r3
-        push    r4
-        push    r5
-        push    r7 
-        ldi     r1, array_A
-        ldi     r2, arrA
-        ldi     r3, array_B
-        ldi     r4, arrB
-        ldi     r7, 0x8
-loop:   ldr r0, r2
-        str r1, r0
-        ldr r5, r4
-        str r3, r5
-        adi r1, 1
-        adi r2, 1
-        adi r3, 1
-        adi r4, 1
-        adi r7, 0xFFFF
-        jns loop
-end:    pop r7 
-        pop r5
-        pop r4
-        pop r3
-        pop r2
-        pop r1
-        pop r0
+arr_add:
+        push 	r0 
+        push 	r1
+        push 	r7 
+        ldi 	r7, 0x08
+lp2:    ldix 	r0, r7, array_A
+        ldix 	r1, r7, array_B
+        add 	r0, r1 
+        stix 	r7, r0, array_C
+        adi 	r7, 0xFFFF
+        jns 	lp2
+        pop 	r7 
+        pop 	r1 
+        pop 	r0 
         ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-arrA:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
+;PRINT
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+arr_print:
+        push 	r0 ;index
+        push 	r1 ;num
+		push	r3 
+		
+        pop 	r7 
+		pop		r3 
+        pop 	r1
+        pop 	r0 
+        ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
+;Const, values
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+valsA:
         byte    0x01
         byte    0x03
         byte    0x05
@@ -109,7 +163,7 @@ arrA:
         byte    0x11
         byte    0x13
         byte    0x00
-arrB:
+valsB:
         byte    0x01
         byte    0x01
         byte    0x02
@@ -119,3 +173,14 @@ arrB:
         byte    0x0D
         byte    0x15
         byte    0x00
+arrBeg:
+		byte	0x5b ; [
+		byte	0x20
+		byte	0x00
+arrMid:
+		;byte	0x2C ; ,
+		byte	0x20
+		byte	0x00
+arrEnd:
+		byte	0x5D ; ]
+		byte	0x00
