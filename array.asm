@@ -125,6 +125,7 @@ arr_add:
 		ldi r3, array_B
 		ldi r4, array_C
         ldi 	r7, 0x08
+		stm	time0, r0
 lp2:	ldr r0, r2 
 		ldr r1, r3
 		add r0, r1
@@ -134,6 +135,15 @@ lp2:	ldr r0, r2
 		adi r4, 1
 		adi r7, 0xffff
 		jns lp2
+		ldi r6, time0
+		stm tnum, r6
+		ldi r5, timestr
+		stm string, r5
+		sys prints
+		sys printn
+		ldi r5, secstr
+		stm string, r5
+		prints		
         pop 	r7
 		pop 	r6
 		pop 	r5
@@ -177,3 +187,16 @@ arrMid:
 arrEnd:
 		byte	0x5D ; ]
 		byte	0x00
+secstr:
+        byte    0x0B
+        byte    s
+        byte    0x00
+timestr:
+        byte    0x0D
+        byte    t
+        byte    i
+        byte    m
+        byte    e
+        byte    0x3A
+        byte    0x20
+        byte    0x00
