@@ -63,46 +63,32 @@ top:	ldi		r0, 	0		;clear r0
         sys     clear
 ;cpy
 		ldi  r1, array_A
-		;ldi  r2, valsA
-		;ldi	 r7, 0x08 ;r7=i
-lp1:	ldi r2, 0x01
-		str r1, r2
+		ldi  r2, valsA
+		ldi	 r7, 0x08 ;r7=i
+lp1:	ldr r0, r2
+		str r1, r0
 		adi r1, 1
-		ldi r2, 0x03
-		str r1, r2
+		adi r2, 1
+		adi r7, 0xffff
+		jns lp1
+;exit lp1
+		ldi  r1, array_B
+		ldi  r2, valsB
+		ldi	 r7, 0x08 ;r7=i
+lp1b:	ldr r0, r2
+		str r1, r0
 		adi r1, 1
-		ldi r2, 0x05
-		str r1, r2
-		adi r1, 1
-		ldi r2, 0x07
-		str r1, r2
-		adi r1, 1
-		ldi r2, 0x0b
-		str r1, r2
-		adi r1, 1
-		ldi r2, 0x0d
-		str r1, r2
-		adi r1, 1
-		ldi r2, 0x11
-		str r1, r2
-		adi r1, 1
-		ldi r2, 0x13
-		str r1, r2 
-		;
-		;ldr r0, r2 ;r0=vals[i]
-		;str r1, r0 ;A[i]=r0
-		;adi r1, 1
-		;adi r2, 1
-		;adi r7, 0xFFFF
-		;jns lp1
-        ;call    arr_add
+		adi r2, 1
+		adi r7, 0xffff
+		jns lp1b
+        call    arr_add
 ;print
-        ldi		r0, array_A
+        ldi		r0, array_C
 		ldi		r1, 0
 		ldi		r2, 0
-		;ldi		r3, arrBeg
-		;stm		string, r3
-		;sys		prints
+		ldi		r3, arrBeg
+		stm		string, r3
+		sys		prints
 		
 lp3:    ldr		r1, r0 
         stm 	tnum, r1
@@ -115,9 +101,9 @@ lp3:    ldr		r1, r0
         cmpi	r2, 0x08
         jnz 	lp3
 ;end loop
-		;ldi		r3, arrEnd
-		;stm		string, r3
-		;sys		prints
+		ldi		r3, arrEnd
+		stm		string, r3
+		sys		prints
 exit:	jmp		exit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;ADD
@@ -125,29 +111,32 @@ exit:	jmp		exit
 arr_add:
         push 	r0 
         push 	r1
+		push 	r2
+		push 	r3
+		push 	r4
+		push 	r5
+		push 	r6
         push 	r7 
+		ldi r2, array_A
+		ldi r3, array_B
+		ldi r4, array_C
         ldi 	r7, 0x08
-lp2:    ldix 	r0, r7, array_A
-        ldix 	r1, r7, array_B
-        add 	r0, r1 
-        stix 	r7, r0, array_C
-        adi 	r7, 0xFFFF
-        jns 	lp2
-        pop 	r7 
+lp2:	ldr r0, r2 
+		ldr r1, r3
+		add r0, r1
+		str r4, r0 
+		adi r2, 1
+		adi r3, 1
+		adi r4, 1
+		adi r7, 0xffff
+		jns lp2
+        pop 	r7
+		pop 	r6
+		pop 	r5
+		pop 	r4
+		pop 	r3
+		pop 	r2
         pop 	r1 
-        pop 	r0 
-        ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
-;PRINT
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-arr_print:
-        push 	r0 ;index
-        push 	r1 ;num
-		push	r3 
-		
-        pop 	r7 
-		pop		r3 
-        pop 	r1
         pop 	r0 
         ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
