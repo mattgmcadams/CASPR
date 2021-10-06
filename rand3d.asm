@@ -31,23 +31,6 @@
 .define inport 	0xf0005	;GPIO read address
 .define outport	0xf0005	;GPIO write address
 .define rand	0xf0006	;random number
-.define msx	0xf0007	;mouse X
-.define msy	0xf0008	;mouse Y
-.define msrb	0xf0009	;mouse right button
-.define mslb	0xf000A	;mouse left button
-.define trdy	0xf0010	;touch ready
-.define tcnt	0xf0011	;touch count
-.define gesture	0xf0012	;touch gesture
-.define tx1	0xf0013	;touch X1
-.define ty1	0xf0014	;touch Y1
-.define tx2	0xf0015	;touch X2
-.define ty2	0xf0016	;touch Y2
-.define tx3	0xf0017	;touch X3
-.define ty3	0xf0018	;touch Y3
-.define tx4	0xf0019	;touch X4
-.define ty4	0xf001A	;touch Y4
-.define tx5	0xf001B	;touch X5
-.define ty5	0xf001C	;touch Y5
 ;Program variables;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .define	x3d1	0x0800	;for 3d line subroutine
 .define y3d1	0x0801
@@ -57,7 +40,7 @@
 .define	z3d2	0x0805	
 .define PRNG	0x0806	;LFSR random number
 .define b3dx	0x0807	;base X for 3d plots
-.define pmt	0x080D	;ASCII for prompt
+.define pmt		0x080D	;ASCII for prompt
 .define tmpx	0x080E	;variable to hold TX
 .define tmpc	0x080F	;variable to hold cursor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -72,26 +55,12 @@
 .define wvf	0x0866	;working variable f
 .define wvg	0x0867	;working variable g
 .define wvh	0x0868	;working variable h
-.define h0	0x0869	;hash value 0
-.define h1	0x086A	;hash value 1
-.define h2	0x086B	;hash value 2
-.define h3	0x086C	;hash value 3
-.define h4	0x086D	;hash value 4
-.define h5	0x086E	;hash value 5
-.define h6	0x086F	;hash value 6
-.define h7	0x0870	;hash value 7
 .define t1	0x0871	;temporary value 1
 .define t2	0x0872	;temporary value 2
 ;Program constants;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .define vmode	4	;text only video mode
 .define gmode	6	;graphic only mode
 .define svmode	7	;text XOR graphic video mode
-.define up	0x10	;gesture up
-.define left	0x14	;gesture left
-.define down	0x18	;gesture down
-.define right	0x1C	;gesture right
-.define zin	0x48	;gesture zoom in
-.define zout	0x49	;gesture zoom out
 .define hmin	518	;frame corners
 .define hmax	778
 .define vmin	182
@@ -112,7 +81,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;RAND3D: 3D scatter plots of LFSR and WELL512a
+; 3D scatter plot of WELL512a
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 top:	sys		clearg			;clear graphic screen
 	    ldi		r0, 	white
@@ -174,7 +143,6 @@ frame:	ldi		r0, 	fmin
 		stm		y3d2, 	r0
 		stm		z3d2, 	r0
 		call	line3d			;(1,0,1) to (1,1,1)
-
 plotw:	ldi		r0, 	31
 		stm		color, 	r0
 		ldi		r7, 	30000
@@ -201,59 +169,62 @@ loopw:	ldi		r2, 	0xFF	;8-bit mask
 		call	pixel3d
 		adi		r7, 	0xFFFF
 		jnz		loopw
-;plotl:	ldi		r0, 	31
-;		stm		color, 	r0
-;		ldi		r0, 	b3dx2
-;		stm		b3dx, 	r0		;base X 2
-;		ldi		r7, 	30000
-;loopl:	ldi		r2, 0xFF	;8-bit mask
-;		ldi		r3, 200		;scale factor
-;		push	r7
-;		call	LFSR
-;		ldm		r1, PRNG
-;		ror		r1, 16
-;		and		r1, r2		;last 8-bit only
-;		mul		r1, r3		;scale
-;		ror		r1, 8
-;		and		r1, r2
-;		stm		x3d1, r1
-;		call	LFSR
-;		ldm		r1, PRNG
-;		ror		r1, 16
-;		and		r1, r2		;last 8-bit only
-;		mul		r1, r3		;scale
-;		ror		r1, 8
-;		and		r1, r2
-;		stm		y3d1, r1
-;		call	LFSR
-;		ldm		r1, PRNG
-;		ror		r1, 16
-;		and		r1, r2		;last 8-bit only
-;		mul		r1, r3		;scale
-;		ror		r1, 8
-;		and		r1, r2
-;		stm		z3d1, r1
-;		call	pixel3d
-;		pop		r7
-;		adi		r7, 0xFFFF
-;		jnz		loopl
 done:	jmp		done
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-line3d:	ldm		r0, b3dx
-		ldm		r1, x3d1
-		ldm		r2, y3d1
-		ldm		r3, z3d1
+line3d:	call 	xeq
+		call	yeq
+		sys		line
+		ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+pixel3d:
+		ldm		r0, b3dx		;r0 = b3dx
+		ldm		r1, x3d1		;r1 = ax
+		ldm		r2, y3d1		;r2 = ay
+		ldm		r3, z3d1		;r3 = az
 		add		r0, r1
-		sub		r0, r2		;bx = b3dx + ax - ay
-		stm		x1, r0
+		sub		r0, r2			;bx = b3dx + ax - ay
+		stm		gx, r0
 		ldi		r0, b3dy
 		sub		r0, r3
 		add		r1, r2
 		ldi		r2, 0xFFFE
 		and 	r1, r2
 		ror		r1, 1		
+		sub		r0, r1			;by = b3dy - az - 1/2 (ax + ay)
+		stm		gy, r0
+		sys		pixel
+		ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+xeq:
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
+		ldm		r0, b3dx		;r0 = b3dx
+		ldm		r1, x3d1		;r1 = ax
+		ldm		r2, y3d1		;r2 = ay
+		ldm		r3, z3d1		;r3 = az
+		add		r0, r1			;r0 = bx + x1
+		sub		r0, r2		;bx = b3dx + ax - ay
+		stm		x1, r0			;store bx into x1
+		ldi		r0, b3dy		;r0 = b3dy
+		sub		r0, r3			;b3dy -= az
+		add		r1, r2			;ax += ay
+		ldi		r2, 0xFFFE		;r2 = b'1111111111111110'
+		and 	r1, r2			;make last bit of r1 '0'
+		ror		r1, 1			;divide r1 / 2
 		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
-		stm		y1, r0
+		stm		y1, r0			;y1 = by
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
+		ret
+yeq:
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
 		ldm		r0, b3dx
 		ldm		r1, x3d2
 		ldm		r2, y3d2
@@ -269,24 +240,69 @@ line3d:	ldm		r0, b3dx
 		ror		r1, 1		
 		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
 		stm		y2, r0
-		sys		line
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
 		ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-pixel3d:
-		ldm		r0, b3dx
-		ldm		r1, x3d1
-		ldm		r2, y3d1
-		ldm		r3, z3d1
-		add		r0, r1
-		sub		r0, r2		;bx = b3dx + ax - ay
-		stm		gx, r0
-		ldi		r0, b3dy
-		sub		r0, r3
-		add		r1, r2
-		ldi		r2, 0xFFFE
-		and 	r1, r2
-		ror		r1, 1		
-		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
-		stm		gy, r0
-		sys		pixel
+x1eq:		; bx = b3dx + 1/2 ax - ay
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
+		ldm		r0, 	b3dx		;r0 = b3dx
+		ldm		r1, 	x3d1		;r1 = ax
+		ldi		r2, 	0xFFFE
+		and 	r1, 	r2			;r1 = ax/2
+		ldm		r2, 	y3d1		;r2 = ay
+		ldm		r3, 	z3d1		;r3 = az
+		add		r0,		r1			;r0 = b3dx + 1/2 ax
+		sub		r0,		r2			;r0 = b3dx + 1/2 ax - ay
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
+		ret
+x2eq:		; bx = b3dx + ax - 1/2 ay
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
+		;eq
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
+		ret
+y1eq:		; by = b3dy - 1/2 az = 1/2 (ax + ay)
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
+		;eq
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
+y2eq:		; by = b3dy - az - 1/2 ax - 3/4 ay
+		push 	r0
+		push 	r1
+		push 	r2
+		push 	r3
+		;eq
+		pop		r3
+		pop 	r2
+		pop 	r1
+		pop 	r0
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+thrqrt:							; r7 is the arg to be multiplied by 3/4
+		push 	r0
+		push	r1
+		ldi		r1,		3
+		mul		r7,		r1		; multiply r7 by 3
+		ldi		r0,		0xFFFC 	; b'1111111111111100'
+		and		r7,		r0		; set 2 lsb's of r7 to 0
+		ror		r7,		2		; divide r7 by 4
+		pop 	r1
+		pop		r0
 		ret
