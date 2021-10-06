@@ -101,9 +101,8 @@
 .define hmin2	208	;frame corners #2
 .define hmax2	468
 .define basex2	210	;screen X of (0,0) #2
-.define b3dx1	599	;screen X of (0,0,0)
+.define b3dx1	400	;screen X of (0,0,0)
 .define b3dy	440	;screen Y of (0,0,0)
-.define b3dx2	200	;screen X of (0,0,0) # 2
 .define fmin	0	;0 for frame min
 .define fmax	199	;200 for frame max
 .define white	0xFF	;white color
@@ -114,186 +113,186 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;RAND3D: 3D scatter plots of LFSR and WELL512a
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	sys	clearg		;clear graphic screen
-	ldi	r0, white
-	stm	color, r0	;white frame
-	ldi	r0, seed
-	stm	PRNG, r0	;initializing LFSR
-	ldi	r0, b3dx2
-	stm	b3dx, r0	;base X 2
-	ldi	r7, 2
-frame1:	ldi	r0, fmin
-	stm	x3d1, r0
-	stm	y3d1, r0
-	stm	z3d1, r0
-	stm	y3d2, r0
-	stm	z3d2, r0
-	ldi	r0, fmax
-	stm	x3d2, r0
-	call	line3d		;(0,0,0) to (1,0,0)
-	ldi	r0, fmin
-	stm	x3d2, r0
-	ldi	r0, fmax
-	stm	y3d2, r0
-	call	line3d		;(0,0,0) to (0,1,0)
-	ldi	r0, fmax
-	stm	x3d1, r0	
-	stm	y3d1, r0
-	ldi	r0, gray
-	stm	color, r0
-	call	line3d		;(0,1,0) to (1,1,0)
-	ldi	r0, fmin
-	stm	x3d1, r0
-	ldi	r0, fmax
-	stm	z3d1, r0
-	ldi	r0, white
-	stm	color, r0
-	call	line3d		;(0,1,0) to (0,1,1)
-	ldi	r0, fmax
-	stm	x3d2, r0
-	stm	z3d2, r0
-	call	line3d		;(0,1,1) to (1,1,1)
-	ldi	r0, fmin
-	stm	z3d1, r0
-	ldi	r0, fmax
-	stm	x3d1, r0
-	ldi	r0, gray
-	stm	color, r0
-	call	line3d		;(1,1,1) to (1,1,0)
-	ldi	r0, fmin
-	stm	y3d2, r0
-	stm	z3d2, r0
-	call	line3d		;(1,1,0) to (1,0,0)
-	ldi	r0, fmax
-	stm	z3d1, r0
-	ldi	r0, fmin
-	stm	y3d1, r0
-	ldi	r0, white
-	stm	color, r0
-	call	line3d		;(1,0,0) to (1,0,1)
-	ldi	r0, fmax
-	stm	y3d2, r0
-	stm	z3d2, r0
-	call	line3d		;(1,0,1) to (1,1,1)
+top:	sys		clearg			;clear graphic screen
+	    ldi		r0, 	white
+	    stm		color, 	r0		;white frame
+	    ldi		r0, 	seed
+	    stm		PRNG, 	r0		;initializing LFSR
+	    ldi		r0, 	b3dx2
+	    stm		b3dx, 	r0		;base X 2
+	    ldi		r7, 	2
+frame1:	ldi		r0, 	fmin	
+	    stm		x3d1, 	r0			;set 3d:x1, y1, z1, y2, and z2 to frame minimum
+	    stm		y3d1, 	r0		
+		stm		z3d1, 	r0		
+		stm		y3d2, 	r0		
+		stm		z3d2, 	r0		
+		ldi		r0, 	fmax	
+		stm		x3d2, 	r0			;set x2 to frame maximum
+		call	line3d			;(0,0,0) to (1,0,0)
+		ldi		r0, 	fmin
+		stm		x3d2, 	r0			;set 3d x2 to frame minimum
+		ldi		r0, 	fmax
+		stm		y3d2, 	r0			;set 3d y2 to frame maximum
+		call	line3d			;(0,0,0) to (0,1,0)
+		ldi		r0, 	fmax
+		stm		x3d1, 	r0		
+		stm		y3d1, 	r0			;set 3d x1 and y1 to frame max
+		ldi		r0, 	gray	
+		stm		color, 	r0		
+		call	line3d			;(0,1,0) to (1,1,0)
+		ldi		r0, 	fmin
+		stm		x3d1, 	r0
+		ldi		r0, 	fmax
+		stm		z3d1, 	r0
+		ldi		r0, 	white
+		stm		color, 	r0
+		call	line3d			;(0,1,0) to (0,1,1)
+		ldi		r0, 	fmax
+		stm		x3d2, 	r0
+		stm		z3d2, 	r0
+		call	line3d			;(0,1,1) to (1,1,1)
+		ldi		r0, 	fmin
+		stm		z3d1, 	r0
+		ldi		r0, 	fmax
+		stm		x3d1, 	r0
+		ldi		r0, 	gray			;inner frame in gray
+		stm		color, 	r0
+		call	line3d			;(1,1,1) to (1,1,0)
+		ldi		r0, 	fmin
+		stm		y3d2, 	r0
+		stm		z3d2, 	r0
+		call	line3d			;(1,1,0) to (1,0,0)
+		ldi		r0, 	fmax
+		stm		z3d1, 	r0
+		ldi		r0, 	fmin
+		stm		y3d1, 	r0
+		ldi		r0, 	white
+		stm		color, 	r0
+		call	line3d			;(1,0,0) to (1,0,1)
+		ldi		r0, 	fmax
+		stm		y3d2, 	r0
+		stm		z3d2, 	r0
+		call	line3d			;(1,0,1) to (1,1,1)
 
-	adi	r7, 0xFFFF
-	jz	plotw
-	ldi	r0, b3dx1
-	stm	b3dx, r0	;base X 1
-	jmp	frame1
+		adi		r7, 	0xFFFF
+		jz		plotw
+		ldi		r0, 	b3dx1
+		stm		b3dx, 	r0		;base X 1
+		jmp		frame1
 
-plotw:	ldi	r0, 31
-	stm	color, r0
-	ldi	r7, 30000
-loopw:	ldi	r2, 0xFF	;8-bit mask
-	ldi	r3, 200		;scale factor
-	ldm	r1, rand
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	x3d1, r1
-	ldm	r1, rand
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	y3d1, r1
-	ldm	r1, rand
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	z3d1, r1
-	call	pixel3d
-	adi	r7, 0xFFFF
-	jnz	loopw
-plotl:	ldi	r0, 31
-	stm	color, r0
-	ldi	r0, b3dx2
-	stm	b3dx, r0	;base X 2
-	ldi	r7, 30000
-loopl:	ldi	r2, 0xFF	;8-bit mask
-	ldi	r3, 200		;scale factor
-	push	r7
-	call	LFSR
-	ldm	r1, PRNG
-	ror	r1, 16
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	x3d1, r1
-	call	LFSR
-	ldm	r1, PRNG
-	ror	r1, 16
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	y3d1, r1
-	call	LFSR
-	ldm	r1, PRNG
-	ror	r1, 16
-	and	r1, r2		;last 8-bit only
-	mul	r1, r3		;scale
-	ror	r1, 8
-	and	r1, r2
-	stm	z3d1, r1
-	call	pixel3d
-	pop	r7
-	adi	r7, 0xFFFF
-	jnz	loopl
-	jmp	done
+plotw:	ldi		r0, 	31
+		stm		color, 	r0
+		ldi		r7, 	30000
+loopw:	ldi		r2, 	0xFF	;8-bit mask
+		ldi		r3, 	200		;scale factor
+		ldm		r1, 	rand
+		and		r1, 	r2		;last 8-bit only
+		mul		r1, 	r3		;scale
+		ror		r1, 	8
+		and		r1, 	r2
+		stm		x3d1, 	r1
+		ldm		r1, 	rand
+		and		r1, 	r2		;last 8-bit only
+		mul		r1, 	r3		;scale
+		ror		r1, 	8
+		and		r1, 	r2
+		stm		y3d1, 	r1
+		ldm		r1, 	rand
+		and		r1, 	r2		;last 8-bit only
+		mul		r1, 	r3		;scale
+		ror		r1, 	8
+		and		r1, 	r2
+		stm		z3d1, 	r1
+		call	pixel3d
+		adi		r7, 	0xFFFF
+		jnz		loopw
+;plotl:	ldi		r0, 	31
+;		stm		color, 	r0
+;		ldi		r0, 	b3dx2
+;		stm		b3dx, 	r0		;base X 2
+;		ldi		r7, 	30000
+;loopl:	ldi		r2, 0xFF	;8-bit mask
+;		ldi		r3, 200		;scale factor
+;		push	r7
+;		call	LFSR
+;		ldm		r1, PRNG
+;		ror		r1, 16
+;		and		r1, r2		;last 8-bit only
+;		mul		r1, r3		;scale
+;		ror		r1, 8
+;		and		r1, r2
+;		stm		x3d1, r1
+;		call	LFSR
+;		ldm		r1, PRNG
+;		ror		r1, 16
+;		and		r1, r2		;last 8-bit only
+;		mul		r1, r3		;scale
+;		ror		r1, 8
+;		and		r1, r2
+;		stm		y3d1, r1
+;		call	LFSR
+;		ldm		r1, PRNG
+;		ror		r1, 16
+;		and		r1, r2		;last 8-bit only
+;		mul		r1, r3		;scale
+;		ror		r1, 8
+;		and		r1, r2
+;		stm		z3d1, r1
+;		call	pixel3d
+;		pop		r7
+;		adi		r7, 0xFFFF
+;		jnz		loopl
+done:	jmp		done
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-line3d:	ldm	r0, b3dx
-	ldm	r1, x3d1
-	ldm	r2, y3d1
-	ldm	r3, z3d1
-	add	r0, r1
-	sub	r0, r2		;bx = b3dx + ax - ay
-	stm	x1, r0
-	ldi	r0, b3dy
-	sub	r0, r3
-	add	r1, r2
-	ldi	r2, 0xFFFE
-	and 	r1, r2
-	ror	r1, 1		
-	sub	r0, r1		;by = b3dy - az - 1/2 (ax + ay)
-	stm	y1, r0
-	ldm	r0, b3dx
-	ldm	r1, x3d2
-	ldm	r2, y3d2
-	ldm	r3, z3d2
-	add	r0, r1
-	sub	r0, r2		;bx = b3dx + ax - ay
-	stm	x2, r0
-	ldi	r0, b3dy
-	sub	r0, r3
-	add	r1, r2
-	ldi	r2, 0xFFFE
-	and 	r1, r2
-	ror	r1, 1		
-	sub	r0, r1		;by = b3dy - az - 1/2 (ax + ay)
-	stm	y2, r0
-	sys	line
-	ret
+line3d:	ldm		r0, b3dx
+		ldm		r1, x3d1
+		ldm		r2, y3d1
+		ldm		r3, z3d1
+		add		r0, r1
+		sub		r0, r2		;bx = b3dx + ax - ay
+		stm		x1, r0
+		ldi		r0, b3dy
+		sub		r0, r3
+		add		r1, r2
+		ldi		r2, 0xFFFE
+		and 	r1, r2
+		ror		r1, 1		
+		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
+		stm		y1, r0
+		ldm		r0, b3dx
+		ldm		r1, x3d2
+		ldm		r2, y3d2
+		ldm		r3, z3d2
+		add		r0, r1
+		sub		r0, r2		;bx = b3dx + ax - ay
+		stm		x2, r0
+		ldi		r0, b3dy
+		sub		r0, r3
+		add		r1, r2
+		ldi		r2, 0xFFFE
+		and 	r1, r2
+		ror		r1, 1		
+		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
+		stm		y2, r0
+		sys		line
+		ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 pixel3d:
-	ldm	r0, b3dx
-	ldm	r1, x3d1
-	ldm	r2, y3d1
-	ldm	r3, z3d1
-	add	r0, r1
-	sub	r0, r2		;bx = b3dx + ax - ay
-	stm	gx, r0
-	ldi	r0, b3dy
-	sub	r0, r3
-	add	r1, r2
-	ldi	r2, 0xFFFE
-	and 	r1, r2
-	ror	r1, 1		
-	sub	r0, r1		;by = b3dy - az - 1/2 (ax + ay)
-	stm	gy, r0
-	sys	pixel
-	ret
+		ldm		r0, b3dx
+		ldm		r1, x3d1
+		ldm		r2, y3d1
+		ldm		r3, z3d1
+		add		r0, r1
+		sub		r0, r2		;bx = b3dx + ax - ay
+		stm		gx, r0
+		ldi		r0, b3dy
+		sub		r0, r3
+		add		r1, r2
+		ldi		r2, 0xFFFE
+		and 	r1, r2
+		ror		r1, 1		
+		sub		r0, r1		;by = b3dy - az - 1/2 (ax + ay)
+		stm		gy, r0
+		sys		pixel
+		ret
