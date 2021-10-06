@@ -103,6 +103,7 @@
 .define basex2	210	;screen X of (0,0) #2
 .define b3dx1	400	;screen X of (0,0,0)
 .define b3dy	440	;screen Y of (0,0,0)
+;.define b3dx2	200	;screen X of (0,0,0) # 2
 .define fmin	0	;0 for frame min
 .define fmax	199	;200 for frame max
 .define white	0xFF	;white color
@@ -118,8 +119,8 @@ top:	sys		clearg			;clear graphic screen
 	    stm		color, 	r0		;white frame
 	    ldi		r0, 	seed
 	    stm		PRNG, 	r0		;initializing LFSR
-	    ldi		r0, 	b3dx2
-	    stm		b3dx, 	r0		;base X 2
+	    ;ldi		r0, 	b3dx2
+	    ;stm		b3dx, 	r0		;base X 2
 	    ldi		r7, 	2
 frame1:	ldi		r0, 	fmin	
 	    stm		x3d1, 	r0			;set 3d:x1, y1, z1, y2, and z2 to frame minimum
