@@ -119,10 +119,9 @@ top:	sys		clearg			;clear graphic screen
 	    stm		color, 	r0		;white frame
 	    ldi		r0, 	seed
 	    stm		PRNG, 	r0		;initializing LFSR
-	    ;ldi		r0, 	b3dx2
-	    ;stm		b3dx, 	r0		;base X 2
-	    ldi		r7, 	2
-frame1:	ldi		r0, 	fmin	
+		ldi		r0, 	b3dx1
+		stm		b3dx, 	r0		;base X 1
+frame:	ldi		r0, 	fmin	
 	    stm		x3d1, 	r0			;set 3d:x1, y1, z1, y2, and z2 to frame minimum
 	    stm		y3d1, 	r0		
 		stm		z3d1, 	r0		
@@ -130,12 +129,12 @@ frame1:	ldi		r0, 	fmin
 		stm		z3d2, 	r0		
 		ldi		r0, 	fmax	
 		stm		x3d2, 	r0			;set x2 to frame maximum
-		call	line3d			;(0,0,0) to (1,0,0)
+		call	line3d				;(0,0,0) to (1,0,0)
 		ldi		r0, 	fmin
 		stm		x3d2, 	r0			;set 3d x2 to frame minimum
 		ldi		r0, 	fmax
 		stm		y3d2, 	r0			;set 3d y2 to frame maximum
-		call	line3d			;(0,0,0) to (0,1,0)
+		call	line3d				;(0,0,0) to (0,1,0)
 		ldi		r0, 	fmax
 		stm		x3d1, 	r0		
 		stm		y3d1, 	r0			;set 3d x1 and y1 to frame max
@@ -175,12 +174,6 @@ frame1:	ldi		r0, 	fmin
 		stm		y3d2, 	r0
 		stm		z3d2, 	r0
 		call	line3d			;(1,0,1) to (1,1,1)
-
-		adi		r7, 	0xFFFF
-		jz		plotw
-		ldi		r0, 	b3dx1
-		stm		b3dx, 	r0		;base X 1
-		jmp		frame1
 
 plotw:	ldi		r0, 	31
 		stm		color, 	r0
