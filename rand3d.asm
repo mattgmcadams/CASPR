@@ -31,6 +31,10 @@
 .define inport 	0xf0005	;GPIO read address
 .define outport	0xf0005	;GPIO write address
 .define rand	0xf0006	;random number
+.define trdy	0xf0010	;touch ready
+.define tcnt	0xf0011	;touch count
+.define tx1	0xf0013	;touch X1
+.define ty1	0xf0014	;touch Y1
 ;Program variables;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .define	x3d1	0x0800	;for 3d line subroutine
 .define y3d1	0x0801
@@ -57,6 +61,7 @@
 .define wvh	0x0868	;working variable h
 .define t1	0x0871	;temporary value 1
 .define t2	0x0872	;temporary value 2
+.define oldx	0x0873
 ;Program constants;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .define vmode	4	;text only video mode
 .define gmode	6	;graphic only mode
@@ -87,11 +92,11 @@ top:	sys		clearg			;clear graphic screen
 	    sys 	clear
 		ldi		r0, 	white
 	    stm		color, 	r0		;white frame
-	    ldi		r0, 	seed
-	    stm		PRNG, 	r0		;initializing LFSR
-		ldi		r0, 	b3dx1
-		stm		b3dx, 	r0		;base X 1
+	    ;ldi		r0, 	seed
+	    ;stm		PRNG, 	r0		;initializing LFSR
+		ldi		r4,		0xFFFE
 frame:	ldi		r0, 	fmin	
+		ldi		r7, 1
 	    stm		x3d1, 	r0		;set 3d:x1, y1, z1, y2, and z2 to frame minimum
 	    stm		y3d1, 	r0		
 		stm		z3d1, 	r0		
@@ -173,13 +178,13 @@ loopw:	ldi		r2, 	0xFF	;8-bit mask
 done:	jmp		done
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 line3d:	call 	x2eq
-		call 	y2eq
+		call 	y1eq
 		sys		line
 		ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 pixel3d:
 		call 	x2eq
-		call	y2eq
+		call	y1eq
 		sys		pixel
 		ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -188,13 +193,13 @@ xeqln:
 		push 	r1
 		push 	r2
 		push 	r3
-		ldm		r0, 	b3dx	;r0 = b3dx
+		ldi		r0, 	b3dx1	;r0 = b3dx
 		ldm		r1, 	x3d1	;r1 = ax
 		ldm		r2, 	y3d1	;r2 = ay
 		add		r0, 	r1		;bx += ax
 		sub		r0, 	r2		;bx -= ay
 		stm		x1, 	r0		;store bx into x1
-		ldm		r0, 	b3dx	;r0 = bx
+		ldi		r0, 	b3dx1	;r0 = bx
 		add		r0, 	r1		;bx += ax
 		sub		r0, 	r2		;bx -= ay
 		stm		x2, 	r0
@@ -209,7 +214,7 @@ xeqpx:
 		push 	r1
 		push 	r2
 		push 	r3
-		ldm		r0, 	b3dx	;r0 = b3dx
+		ldi		r0, 	b3dx1	;r0 = b3dx
 		ldm		r1, 	x3d1	;r1 = ax
 		ldm		r2, 	y3d1	;r2 = ay
 		ldm		r3, 	z3d1	;r3 = az
@@ -233,8 +238,8 @@ yeqln:
 		ldm		r3, 	z3d1	;r3 = az
 		sub		r0, 	r3		;b3dy -= az
 		add		r1, 	r2		;ax += ay
-		ldi		r2, 	0xFFFE	;r2 = b'1111111111111110'
-		and 	r1, 	r2		;make last bit of r1 '0'
+		
+		and 	r1, 	r4		;make last bit of r1 '0'
 		ror		r1, 	1		;divide r1 / 2
 		sub		r0, 	r1		;by = b3dy - az - 1/2 (ax + ay)
 		stm		y1, 	r0		;y1 = by
@@ -267,8 +272,8 @@ yeqpx:
 		ldm		r3, 	z3d1	;r3 = az
 		sub		r0, 	r3		;b3dy -= az
 		add		r1, 	r2		;ax += ay
-		ldi		r2, 	0xFFFE	;r2 = b'1111111111111110'
-		and 	r1, 	r2		;make last bit of r1 '0'
+		
+		and 	r1, 	r4		;make last bit of r1 '0'
 		ror		r1, 	1		;divide r1 / 2
 		sub		r0, 	r1		;by = b3dy - az - 1/2 (ax + ay)
 		stm		gy, 	r0
@@ -283,11 +288,9 @@ x1eq:		; bx = b3dx + 1/2 ax - ay
 		push 	r1
 		push 	r2
 		push 	r3
-		push	r4
-		ldm		r0, 	b3dx	;r0 = b3dx
+		ldi		r0, 	b3dx1	;r0 = b3dx
 		ldm		r1, 	x3d1	;r1 = ax
-		ldi		r4, 	0xFFFE
-		and 	r1, 	r2		;r1 = ax/2
+		and 	r1, 	r4		;r1 = ax/2
 		ror		r1, 	1
 		ldm		r2, 	y3d1	;r2 = ay
 		ldm		r3, 	z3d1	;r3 = az
@@ -295,16 +298,15 @@ x1eq:		; bx = b3dx + 1/2 ax - ay
 		sub		r0,		r2		;r0 = b3dx + 1/2 ax - ay
 		stm		x1, 	r0		;save to x1
 		stm		gx, 	r0
-		ldi		r0, 	b3dx	;r0 = b3dx
+		ldi		r0, 	b3dx1	;r0 = b3dx
 		ldm		r1, 	x3d2	;r1 = ax
-		and 	r1, 	r2		;r1 = ax/2
+		and 	r1, 	r4		;r1 = ax/2
 		ror		r1, 	1
 		ldm		r2, 	y3d2	;r2 = ay
 		ldm		r3, 	z3d2	;r3 = az
 		add		r0,		r1		;r0 = b3dx + 1/2 ax
 		sub		r0,		r2		;r0 = b3dx + 1/2 ax - ay
 		stm		x2, 	r0 		;save to x2
-		pop		r4
 		pop		r3
 		pop 	r2
 		pop 	r1
@@ -316,11 +318,9 @@ x2eq:		; bx = b3dx + ax - 1/2 ay
 		push 	r1
 		push 	r2
 		push 	r3
-		push 	r4
-		ldm		r0, 	b3dx	;r0 = bx
+		ldi		r0, 	b3dx1	;r0 = bx
 		ldm		r1, 	x3d1	;r1 = ax
 		ldm		r2, 	y3d1	;r2 = ay
-		ldi		r4, 	0xFFFE
 		and 	r2, 	r4		;ay /= 2
 		ror		r2, 	1
 		ldm		r3, 	z3d1	;r3 = az
@@ -328,7 +328,7 @@ x2eq:		; bx = b3dx + ax - 1/2 ay
 		sub		r0,		r2		;r0 = b3dx + 1/2 ax - ay
 		stm		x1, 	r0 		;save to x1
 		stm		gx, 	r0
-		ldi		r0, 	b3dx	;r0 = b3dx
+		ldi		r0, 	b3dx1	;r0 = b3dx
 		ldm		r1, 	x3d2	;r1 = ax
 		ldm		r2, 	y3d2	;r2 = ay
 		and 	r2, 	r4		;r1 = ax/2
@@ -337,7 +337,6 @@ x2eq:		; bx = b3dx + ax - 1/2 ay
 		add		r0,		r1		;r0 = b3dx + 1/2 ax
 		sub		r0,		r2		;r0 = b3dx + 1/2 ax - ay
 		stm		x2, 	r0 		;save to x2
-		pop		r4
 		pop		r3
 		pop 	r2
 		pop 	r1
@@ -349,7 +348,6 @@ y1eq:		; by = b3dy - 1/2 az = 1/2 (ax + ay)
 		push 	r1
 		push 	r2
 		push 	r3
-		push	r4
 		ldi		r0, 	b3dy	;r0 = b3dx
 		ldm		r1, 	x3d1	;r1 = ax
 		ldm		r2, 	y3d1	;r2 = ay
@@ -358,25 +356,24 @@ y1eq:		; by = b3dy - 1/2 az = 1/2 (ax + ay)
 		and 	r1, 	r4		;ax /= 2
 		ror		r1, 	1
 		ldm		r3, 	z3d1	;r3 = az
-		and		r3,		r2		;az /= 2
+		and		r3,		r4		;az /= 2
 		ror		r3, 	1
 		sub		r0,		r3		;by -= az
 		sub		r0,		r1		;by -= ax
 		stm		y1, 	r0 		;save to y1
 		stm		gy, 	r0
 		ldi		r0, 	b3dy	;r0 = b3dx
-		ldm		r1, 	x3d1	;r1 = ax
-		ldm		r2, 	y3d1	;r2 = ay
+		ldm		r1, 	x3d2	;r1 = ax
+		ldm		r2, 	y3d2	;r2 = ay
 		add		r1, 	r2		;ax += ay
 		and 	r1, 	r4		;ax /= 2
 		ror		r1, 	1
-		ldm		r3, 	z3d1	;r3 = az
-		and		r3,		r2		;az /= 2
+		ldm		r3, 	z3d2	;r3 = az
+		and		r3,		r4		;az /= 2
 		ror		r3, 	1
 		sub		r0,		r3		;by -= az
 		sub		r0,		r1		;by -= ax
 		stm		y2, 	r0 		;save to y2
-		pop		r4
 		pop		r3
 		pop 	r2
 		pop 	r1
@@ -390,8 +387,7 @@ y2eq:		; by = b3dy - az - 1/2 ax - 3/4 ay
 		push 	r3
 		ldi		r0, 	b3dy	;r0 = b3dx
 		ldm		r1, 	x3d1	;r1 = ax
-		ldi		r2, 	0xFFFE
-		and 	r1, 	r2		;ax /= 2
+		and 	r1, 	r4		;ax /= 2
 		ror		r1, 	1
 		ldm		r2, 	y3d1	;r2 = ay
 		call	thrqrt			; call three-quarters subroutine (ay *= 3/4)
@@ -401,14 +397,14 @@ y2eq:		; by = b3dy - az - 1/2 ax - 3/4 ay
 		sub 	r0, 	r2		; by -= ay
 		stm		y1, 	r0 		;save to y1
 		stm		gy, 	r0
+		;-------------------------------------------------------
 		ldi		r0, 	b3dy	;r0 = b3dx
-		ldm		r1, 	x3d1	;r1 = ax
-		ldi		r2, 	0xFFFE
-		and 	r1, 	r2		;ax /= 2
+		ldm		r1, 	x3d2	;r1 = ax
+		and 	r1, 	r4		;ax /= 2
 		ror		r1, 	1
-		ldm		r2, 	y3d1	;r2 = ay
+		ldm		r2, 	y3d2	;r2 = ay
 		call	thrqrt			; call three-quarters subroutine (ay *= 3/4)
-		ldm		r3, 	z3d1	;r3 = az
+		ldm		r3, 	z3d2	;r3 = az
 		sub		r0,		r3		; by -= az
 		sub		r0,		r1		; by -= ax
 		sub 	r0, 	r2		; by -= ay
@@ -429,4 +425,48 @@ thrqrt:							; r2 is the arg to be multiplied by 3/4
 		ror		r2,		2		; divide r7 by 4
 		pop 	r1
 		pop		r0
+		ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;wait for touch screen sensor
+;Accept next touch only if TX1 changes!
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+wait:	push r0
+		push r1
+		ldi		r0, 	0
+		ldh		r0, 	0x10
+dly:	adi		r0, 	0xFFFF
+		jnz		dly	
+		ldm		r0, 	trdy
+		cmpi	r0, 	1
+		jz		wait
+wait0:
+		ldm		r0, 	trdy
+		cmpi	r0, 	1
+		jz		wait0
+		ldm		r0, 	tcnt
+		cmpi	r0, 	1
+		jnz		wait
+		ldm		r0, 	tx1
+		ldm		r1, 	oldx
+		cmp		r0, 	r1
+		jz		wait		;no respond to old touch
+		stm		oldx, 	r0	;update oldx
+		pop r1
+		pop r0
+		ret
+		
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+noop:	push r0
+		push r1
+		push r2
+		ldi		r0, 0x07ff
+one:	ldi	r1, 0x07ff
+two:	nop
+		adi r1, 0xffff
+		jnz two
+		adi	r0, 0xffff
+		jnz one
+		pop r2
+		pop r1
+		pop r0
 		ret
