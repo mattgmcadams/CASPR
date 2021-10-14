@@ -48,44 +48,67 @@
 .define y2		0x090F	;y2
 .define rad		0x0910	;radius for circle
 .define	string	0x0911	;string pointer
-.define matrix_A 0x0800	;matrix A
-.define matrix_B 0x0810 ;matrix B
-.define matrix_C 0x0820 ;matrix C
+.define oldx	0x0800
+.define sz_arr	0x0801	;array of sizes
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .define size 4			;matrix size
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 top:	ldi		r0, 	0		;clear r0
-        stm format,     r0
-        call   wait
         sys  clearg
         sys   clear
-        ldi 	r0, 	300
-        ldi 	r1, 	400
-        ldi 	r2, 	543
-        ldi 	r3, 	343
-        ldi 	r5, 	0x1e
-        stm 	tx, 	r0
-        stm 	ty, 	r0
-        stm  color, 	r5
+		ldi  r1, sz_arr
+		ldi  r2, sizes
+;cpy
+		ldi	r7, 0x08 ;r7=i
+cpy:	ldr r0, r2
+		str r1, r0
+		adi r1, 1
+		adi r2, 1
+		adi r7, 0xffff
+		jns cpy
+;done cpy
+init:	ldi		 r0, 	1
+		ldi		 r1,	243
+		ldi		 r2,	1
+		ldi		 r3,	243
+		ldi 	 r7,	sz_arr	; r7 = size*
+        ldr 	 r1, 	r7
+		ldr		 r3,	r7
+        ldi 	 r5, 	0xE0 ; color
+        stm   color, 	r5
+		sys dump
         call  srect
-        call   wait
+		;sys dump
+		ldi	  	 r5,	0
+		stm   color,	r5
+		ldi		r5,		4
+		;sys dump
+end:	jmp end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;solid rectangle
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-srect:
-        stm x1, r0
-        stm y1, r1
-        stm x2, r2
-        stm y2, r1
-        sys line
-        adi r1, 1
-        cmp r3, r1
-        jns srect
-        sys dump
-        ret
+srect:	push	r0
+		push	r1
+		push	r2
+		push	r3
+		stm	x1, r0
+		stm	y1, r1
+		stm	x2, r2
+		stm	y2, r1
+		sys	line
+		adi	r1, 1
+		cmp	r3, r1
+		jns	srect
+		pop		r3
+		pop		r2
+		pop		r1
+		pop		r0
+		ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;wait for touch screen sensor;Accept next touch only if TX1 changes!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -109,3 +132,12 @@ wait0:
 		jz	wait		;no respond to old touch
 		stm	oldx, r0	;update oldx
 		ret
+;
+sizes:
+		byte	243		; init
+		byte 	81		; first iteration
+		byte 	27		; second iter
+		byte	9		; 3rd iter
+		byte	3		; 4th iter
+		byte	1		; 5th iter
+		byte	0x00	; null

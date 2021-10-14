@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 // Thanks Sean for grabbing this alg
 
 int main()

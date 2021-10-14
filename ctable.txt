@@ -1,0 +1,18 @@
+ctable:
+    byte    0x00    ;black
+    byte    0xE0    ;red
+    byte    0xE2
+    byte    0xF0
+    byte    0xF2
+    byte    0xE3
+    byte    0x1C    ;green
+    byte    0x9C
+    byte    0x1E
+    byte    0xFC
+    byte    0x03    ;blue
+    byte    0x13
+    byte    0x1F
+    byte    0x93
+    byte    0x92
+    byte    0xFF
+    byte    0x00    ;null
