@@ -56,13 +56,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:	ldi		r0, 	0		;clear r0
-        sys  clearg
-        sys   clear
-		ldi  r1, sz_arr
-		ldi  r2, sizes
-;cpy
-		ldi	r7, 0x08 ;r7=i
+top:
+	ldi	r0, 0
+	stm	format, r0	;force decimal output
+	stm	tx, r0
+	stm	ty, r0
+	sys	clearg
+	sys	clear
+	call wait
+	
+	;Initialization
+	ldi	r0, 300 ;x1
+	ldi	r1, 100 ;y1
+	ldi r2, 543 ;x2
+	ldi r3, 343 ;y2
+	ldi	r4, 0x1E ;color
+	stm color, r4
+	call srect
+	call wait
 cpy:	ldr r0, r2
 		str r1, r0
 		adi r1, 1
@@ -70,24 +81,48 @@ cpy:	ldr r0, r2
 		adi r7, 0xffff
 		jns cpy
 ;done cpy
-init:	ldi		 r0, 	1
-		ldi		 r1,	243
-		ldi		 r2,	1
-		ldi		 r3,	243
-		ldi 	 r7,	sz_arr	; r7 = size*
-        ldr 	 r1, 	r7
-		ldr		 r3,	r7
-        ldi 	 r5, 	0xE0 ; color
-        stm   color, 	r5
-		sys dump
-        call  srect
-		;sys dump
-		ldi	  	 r5,	0
-		stm   color,	r5
-		ldi		r5,		4
+;		ldi		 r0, 	0
+;		ldi		 r1,	0
+;		ldi		 r2,	0
+;		ldi 	 r7,	sz_arr	; r7 = size*
+ ;       ldr 	 r1, 	r7
+;		ldr		 r3,	r7
+ ;       ldi 	 r5, 	0xff ; color
+  ;      stm 	 gx, 	r0
+   ;     stm 	 gy, 	r0
+    ;    stm   color, 	r5
+	;	sys dump
+    ;    call  srect
+	;	sys dump
+	;	ldi	  	 r5,	0
+	;	stm   color,	r5
+	;	ldi		r5,		4
 		;sys dump
 end:	jmp end
-
+iter:	sys dump
+		call   wait
+		adi r5, 0xFFFF
+		jz end
+		adi		r7,		1 ; increment size*
+		ldr r6, r7		; r6 = size
+		mov r0, r6		; r0 = x1
+		mov r1, r6		; r1 = y1 
+		mov r2, r6		; r2 = x2
+		add r2, r6
+		mov r3, r2		; r3 = y2
+loop:		; 
+		call srect
+		cmpi r2, 243	; if x2 == 243, 
+		jnz incx		
+incy:	mov r3, r1		;	 y1 = y2, 
+		add r3, r6		;	 y2 += size. 
+incx:		; else	
+		mov r0, r2		;	 x1 = x2, 
+		add r2, r6		;	 x2 += size
+		cmpi r2, 243	; if y1 != 243
+		jnz loop	;	loop
+		jmp iter	; else, go to next iter
+;end:	jmp end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;solid rectangle
