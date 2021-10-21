@@ -48,17 +48,19 @@
 .define y2	0x090F	;y2
 .define rad	0x0910	;radius for circle
 .define	string	0x0911	;string pointer
-.define oldx	0x0801	;oldx for touch screen
-.define fpx		0x0802	;first point x (local to sierpinski)
-.define fpy		0x0803	;first point y (local to sierpinski)
-.define i1fpx	382 	;first iteration, first point x
-.define i1fpy	182		;first iteration, first point y
-.define i2fpx	328 	;second iteration, first point x
-.define i2fpy	128		;second iteration, first point y
-.define i3fpx	310 	;third iteration, first point x
-.define i3fpy	110		;third iteration, first point y
-.define i4fpx	304 	;fourth iteration, first point x
-.define i4fpy	104		;fourth iteration, first point y
+.define sz_arr	0x0800	;array of sizes
+.define oldx	0x0810	
+.define temp1	0x0811
+.define temp2	0x0812
+.define temp3	0x0813
+.define i1fpx	382 	;first iteration, first point x;  300 + 81
+.define i1fpy	182		;first iteration, first point y;  100 + 81
+.define i2fpx	328 	;second iteration, first point x; 300 + 27
+.define i2fpy	128		;second iteration, first point y; 100 + 27
+.define i3fpx	310 	;third iteration, first point x;  300 + 9
+.define i3fpy	110		;third iteration, first point y;  100 + 9
+.define i4fpx	304 	;fourth iteration, first point x; 300 + 3
+.define i4fpy	104		;fourth iteration, first point y; 100 + 3
 .define i1size	81		;first iteration block size
 .define i2size	27		;first iteration block size
 .define i3size	9		;first iteration block size
@@ -66,166 +68,239 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				
 ;User program begins at 0x00000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-top:
-	ldi	r0, 0
-	stm	format, r0	;force decimal output
-	stm	tx, r0
-	stm	ty, r0
-	sys	clearg
-	sys	clear
-	call wait
-	
+top:	ldi		r0, 0
+		stm		format, r0	;force decimal output
+		stm		tx, 	r0
+		stm		ty, 	r0
+		sys		clearg
+		sys		clear
+		ldi 	r1, 	sz_arr
+		ldi 	r2, 	sizes
+cpy:	ldr 	r0, 	r2
+		str 	r1, 	r0
+		adi 	r1, 	1
+		adi 	r2, 	1
+		cmpi 	r0, 	0x00
+		jnz 	cpy
+		sys dump
+		call 	wait
 	;Initialization
-	ldi	r0, 300 ;x1
-	ldi	r1, 100 ;y1
-	ldi r2, 543 ;x2
-	ldi r3, 343 ;y2
-	ldi	r4, 0x1E ;color
-	stm color, r4
-	call srect
-	call wait
-	
-	;Iteration 1
-	ldi r0, i1fpx
-	ldi r1, i1fpy
-	ldi r4, i1size	;81
-	mov r2, r0		;r2 = r0 + 81
-	mov r3, r1		;r3 = r1 + 81
-	add r2, r4
-	add r3, r4
-	ldi r4, 0x00	;black
-	stm color, r4
-	call srect
-	call wait
+		ldi		r0, 	300 	;x1
+		ldi		r1, 	100 	;y1
+		ldi 	r2, 	543 	;x2
+		ldi 	r3, 	343 	;y2
+		ldi		r5, 	0x1E 	;color
+		stm 	color, 	r5
+		stm		temp1,	r1
+		call 	srect			;self-explanatory
+		ldm		r1,		temp1
+		call	wait
+		ldi		r7,		sz_arr	;Iteration 1		| Iteration 2		| Iteration 3 		| Iteration 4
+		cmpi	r7,		0x00	;-------------------+-------------------+-------------------+-------------------
+		ldr 	r4, 	r7		;r4 = sz = 81		| sz = 27			| sz = 9			| sz = 3
+		ldi 	r5, 	0x03	;black
+		stm 	color, 	r5		;set color to black
+iter:	ldi		r6,		1		;inc
+		ldi		r0, 	300
+		ldi		r1, 	100
+		add 	r0, 	r4		;r0 = 300 + sz		| r0 = 300 + sz		| r0 = 300 + sz		| r0 = 300 + sz
+		add 	r1, 	r4		;r1 = 100 + sz		| r1 = 100 + sz 	| r1 = 300 + sz		| r1 = 300 + sz
+		mov 	r2, 	r0		;r2 = r0 + sz		| r2 = r0 + sz		| r2 = r0 + sz		| r2 = r0 + sz
+		mov 	r3, 	r1		;r3 = r1 + sz		| r3 = r1 + sz		| r3 = r1 + sz		| r3 = r1 + sz
+		add 	r2, 	r4		;r2 += sz
+		add 	r3, 	r4		;r2 += sz
+		stm temp1, r6
+		ldi	r6, msgitr		;r1 = *msg (pointer to msg)
+		stm	string, r6	;string = *msg
+		sys	prints		;call system function prints
+		ldm r6, temp1
+		
+recur:	adi		r5,		1
+		stm		temp1,	r1
+		call 	srect			;self-explanatory
+		ldm		r1,		temp1
+		stm temp1, r6
+		ldi	r6, msgrcr		;r1 = *msg (pointer to msg)
+		stm	string, r6	;string = *msg
+		sys	prints		;call system function prints
+		ldm r6, temp1
+		sys dump
+		call wait
+		cmp		r5,		r6
+		jz  	incx
+		cmp	 	r5,		r6		;    IF Y2 >= 343
+		jns		reset	
+incy:	
+		add		r3,		r4		;    INCREMENT Y
+		mov		r1,		r3
+		add		r3,		r4
+		stm temp1, r6
+		ldi	r6, msgy		;r1 = *msg (pointer to msg)
+		stm	string, r6	;string = *msg
+		sys	prints		;call system function prints
+		ldm r6, temp1
+		sys dump
+		call wait
+		ldi		r0, 	300 	; ELSE
+		sys dump
+		call wait
+		mul	r6, 3		;inc
+		jmp		recur			;    reset x
+incx:	
+		add		r2,		r4		; IF X2 (r2) >= 543
+		mov		r0,		r2		
+		add		r2,		r4
+		stm temp1, r6
+		ldi	r6, msgx		;r1 = *msg (pointer to msg)
+		stm	string, r6	;string = *msg
+		sys	prints		;call system function prints
+		ldm r6, temp1		
+		sys dump
+		call wait
+		jmp recur
+reset:	stm temp1, r6
+		ldi	r6, msgr		;r1 = *msg (pointer to msg)
+		stm	string, r6	;string = *msg
+		sys	prints		;call system function prints
+		ldm r6, temp1
+		ldi		r6,		0
+		adi		r7,		1		;prepare for next iteration
+		ldr		r4,		r7
+		jz		end
+		ldi		r0, 	300 	;x1
+		ldi		r1, 	100 	;y1
+		jmp 	iter
 	
 	;Iteration 2
-	ldi r0, i2fpx
-	ldi r1, i2fpy
-	ldi r4, i2size	;27
-	ldi r5, 0x00	;black
-	stm color, r5
-	ldi r5, 3		;blocks per row
-
-	mov r2, r0		;r2 = r0 + size
-	mov r3, r1		;r3 = r1 + size
-	add r2, r4		
-	add r3, r4
-	ldi r6, 0
-	ldi r7, 0
-	loop1:
-	call srect
-	add r0, r4		;+= size *3
-	add r0, r4
-	add r0, r4
-	add r2, r4
-	add r2, r4
-	add r2, r4
-	sub r1, r4
-	adi r1, 0xFFFF
-	adi r7, 1
-	cmp r7, r5
-	jnz loop1
-	ldi r7, 0
-	ldi r0, i2fpx	;reset x values
-	mov r2, r0
-	add r2, r4
-	add r1, r4
-	add r1, r4
-	add r1, r4
-	add r3, r4
-	add r3, r4
-	add r3, r4
-	adi r6, 1
-	cmp r6, r5
-	jnz loop1
-	call wait
-	
-	;Iteration 3
-	ldi r0, i3fpx
-	ldi r1, i3fpy
-	ldi r4, i3size	;9
-	ldi r5, 0x00	;black
-	stm color, r5
-	mov r2, r0		;r2 = r0 + size
-	mov r3, r1		;r3 = r1 + size
-	add r2, r4		
-	add r3, r4
-	ldi r6, 0
-	ldi r7, 0
-	loop2:
-	call srect
-	add r0, r4		;+= size *3
-	add r0, r4
-	add r0, r4
-	add r2, r4
-	add r2, r4
-	add r2, r4
-	sub r1, r4
-	adi r1, 0xFFFF
-	adi r7, 1
-	cmpi r7, 9
-	jnz loop2
-	ldi r7, 0
-	ldi r0, i3fpx	;reset x values
-	mov r2, r0
-	add r2, r4
-	add r1, r4
-	add r1, r4
-	add r1, r4
-	add r3, r4
-	add r3, r4
-	add r3, r4
-	adi r6, 1
-	cmpi r6, 9
-	jnz loop2
-	call wait
-	
+;	ldi r0, i2fpx
+;	ldi r1, i2fpy
+;	ldi r4, i2size	;27
+;	ldi r5, 0x00	;black
+;	stm color, r5
+;	ldi r5, 3		;blocks per row
+;
+;	mov r2, r0		;r2 = r0 + size
+;	mov r3, r1		;r3 = r1 + size
+;	add r2, r4		
+;	add r3, r4
+;	ldi r6, 0
+;	ldi r7, 0
+;	loop1:
+;	call srect
+;	add r0, r4		;+= size *3
+;	add r0, r4
+;	add r0, r4
+;	add r2, r4
+;	add r2, r4
+;	add r2, r4
+;	sub r1, r4
+;	adi r1, 0xFFFF
+;	adi r7, 1
+;	cmp r7, r5
+;	jnz loop1
+;	ldi r7, 0
+;	ldi r0, i2fpx	;reset x values
+;	mov r2, r0
+;	add r2, r4
+;	add r1, r4
+;	add r1, r4
+;	add r1, r4
+;	add r3, r4
+;	add r3, r4
+;	add r3, r4
+;	adi r6, 1
+;	cmp r6, r5
+;	jnz loop1
+;	call wait
+;	
+;	;Iteration 3
+;	ldi r0, i3fpx
+;	ldi r1, i3fpy
+;	ldi r4, i3size	;9
+;	ldi r5, 0x00	;black
+;	stm color, r5
+;	mov r2, r0		;r2 = r0 + size
+;	mov r3, r1		;r3 = r1 + size
+;	add r2, r4		
+;	add r3, r4
+;	ldi r6, 0
+;	ldi r7, 0
+;	loop2:
+;	call srect
+;	add r0, r4		;+= size *3
+;	add r0, r4
+;	add r0, r4
+;	add r2, r4
+;	add r2, r4
+;	add r2, r4
+;	sub r1, r4
+;	adi r1, 0xFFFF
+;	adi r7, 1
+;	cmpi r7, 9
+;	jnz loop2
+;	ldi r7, 0
+;	ldi r0, i3fpx	;reset x values
+;	mov r2, r0
+;	add r2, r4
+;	add r1, r4
+;	add r1, r4
+;	add r1, r4
+;	add r3, r4
+;	add r3, r4
+;	add r3, r4
+;	adi r6, 1
+;	cmpi r6, 9
+;	jnz loop2
+;	call wait
+;	
 	;Iteration 4
-	ldi r0, i4fpx
-	ldi r1, i4fpy
-	ldi r4, i4size	;3
-	ldi r5, 0x00	;black
-	stm color, r5
-	mov r2, r0		;r2 = r0 + size
-	mov r3, r1		;r3 = r1 + size
-	add r2, r4		
-	add r3, r4
-	ldi r6, 0
-	ldi r7, 0
-	loop3:
-	call srect
-	add r0, r4		;+= size *3
-	add r0, r4
-	add r0, r4
-	add r2, r4
-	add r2, r4
-	add r2, r4
-	sub r1, r4
-	adi r1, 0xFFFF
-	adi r7, 1
-	cmpi r7, 27
-	jnz loop3
-	ldi r7, 0
-	ldi r0, i4fpx	;reset x values
-	mov r2, r0
-	add r2, r4
-	add r1, r4
-	add r1, r4
-	add r1, r4
-	add r3, r4
-	add r3, r4
-	add r3, r4
-	adi r6, 1
-	cmpi r6, 27
-	jnz loop3
-	call wait
-	
-	jmp 	top
-exit:	jmp	exit		;enter endless loop here
+;	ldi r0, i4fpx
+;	ldi r1, i4fpy
+;	ldi r4, i4size	;3
+;	ldi r5, 0x00	;black
+;	stm color, r5
+;	mov r2, r0		;r2 = r0 + size
+;	mov r3, r1		;r3 = r1 + size
+;	add r2, r4		
+;	add r3, r4
+;	ldi r6, 0
+;	ldi r7, 0
+;	loop3:
+;	call srect
+;	add r0, r4		;+= size *3
+;	add r0, r4
+;	add r0, r4
+;	add r2, r4
+;	add r2, r4
+;	add r2, r4
+;	sub r1, r4
+;	adi r1, 0xFFFF
+;	adi r7, 1
+;	cmpi r7, 27
+;	jnz loop3
+;	ldi r7, 0
+;	ldi r0, i4fpx	;reset x values
+;	mov r2, r0
+;	add r2, r4
+;	add r1, r4
+;	add r1, r4
+;	add r1, r4
+;	add r3, r4
+;	add r3, r4
+;	add r3, r4
+;	adi r6, 1
+;	cmpi r6, 27
+;	jnz loop3
+;	call wait
+;	
+;	jmp 	top
+end:	jmp	end		;enter endless loop here
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;wait for touch screen sensor;Accept next touch only if TX1 changes!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-wait:	ldi	r0, 0
+wait:	stm temp3, r0
+		stm temp2, r1
+		ldi	r0, 0
 	ldh	r0, 0x10
 dly:	adi	r0, 0xFFFF
 	jnz	dly
@@ -244,6 +319,8 @@ wait0:
 	cmp	r0, r1
 	jz	wait		;no respond to old touch
 	stm	oldx, r0	;update oldx
+	ldm r1, temp2
+	ldm r0, temp3
 	ret
 ; Solid rectangle
 srect:
@@ -255,7 +332,46 @@ srect:
     adi    r1, 1
     cmp    r3, r1
     jns    srect
-	sys dump
     ret
 	
-sierpinski:
+sizes:
+		byte 	81		; first iteration
+		byte 	27		; second iter
+		byte	9		; 3rd iter
+		byte	3		; 4th iter
+		byte	0x00	; null
+
+msgx:	byte	I		;define string= "HELLO WORLD"
+	byte	N
+	byte	C
+	byte	0x20		;ASCII space
+	byte	X
+	byte 0x0D
+	byte	0x00		;null character to terminate string
+msgy:	byte	I		;define string= "HELLO WORLD"
+	byte	N
+	byte	C
+	byte	0x20		;ASCII space
+	byte	Y
+	byte 0x0D
+	byte	0x00		;null character to terminate string
+msgr:	byte	R		;define string= "HELLO WORLD"
+	byte E
+	byte	S
+	byte E
+	byte	T
+	byte 0x0D
+	byte	0x00		;null character to terminate string
+msgitr:	byte I
+	byte T
+	byte E 
+	byte R 
+	byte 0x0D
+	byte 0x00
+msgrcr:	byte R 
+	byte E 
+	byte C 
+	byte U 
+	byte R 
+	byte 0x0D
+	byte 0x00
