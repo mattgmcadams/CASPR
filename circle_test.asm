@@ -1,1 +1,0 @@
-;measure the runtime of a solid circle
