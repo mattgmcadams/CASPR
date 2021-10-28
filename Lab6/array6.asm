@@ -108,22 +108,22 @@ arr_add:
         push 	r1
         push 	r7 
         ldi 	r7, 	0x08
-	stm	time0,	r0
+		stm	time0,	r0
 lp2:	ldix	r0,	r7,	array_A
-	ldix	r1,	r7,	array_B
-	add	r0,	r1
-	stix	r7,	r0,	array_C
-	adi 	r7, 	0xffff
-	jns 	lp2
-	ldm 	r6, 	time0
-	stm 	tnum, 	r6
-	ldi 	r5, 	timestr
-	stm 	string, r5
-	sys 	prints
-	sys 	printn
-	ldi 	r5, 	secstr
-	stm 	string, r5
-	sys 	prints		
+		ldix	r1,	r7,	array_B
+		add	r0,	r1
+		stix	r7,	r0,	array_C
+		adi 	r7, 	0xffff
+		jns 	lp2
+		ldm 	r6, 	time0
+		stm 	tnum, 	r6
+		ldi 	r5, 	timestr
+		stm 	string, r5
+		sys 	prints
+		sys 	printn
+		ldi 	r5, 	secstr
+		stm 	string, r5
+		sys 	prints		
         pop 	r7
         pop 	r1 
         pop 	r0 
