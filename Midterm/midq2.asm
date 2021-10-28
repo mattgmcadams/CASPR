@@ -122,3 +122,41 @@ init:
 ; if int < 61, NO
 ; if int < 7B, LOWER
 ; else, NO
+
+input: 
+    byte    0x41
+    byte    0x20
+    byte    0x6A
+    byte    0x11
+    byte    0xAB
+    byte    0xCD
+    byte    0x53
+    byte    0x77
+    byte    0x00
+
+no:
+    byte    0x20
+    byte    n
+    byte    o
+    byte    0x0B
+    byte    0x00
+
+upper:
+    byte    0x20
+    byte    u
+    byte    p
+    byte    p
+    byte    e
+    byte    r
+    byte    0x0B
+    byte    0x00
+
+lower:
+    byte    0x20
+    byte    l
+    byte    o
+    byte    w
+    byte    e
+    byte    r
+    byte    0x0B
+    byte    0x00

@@ -33,19 +33,18 @@ _start:
     # This is the actual function definition
     .type factorial,@function
 factorial:
-    pushq   %rbp            # standard function stuff - we have to
+    pushq   %ebp            # standard function stuff - we have to
                             # restore %ebp to its prior state before
                             # returning, so we have to push it
-    movq %rsp, %rbp
-    movq 8(%rbp), %rax
-    cmpl $1, %eax
-    je end_factorial
-    decl %eax
-    pushq %rax
+    movq    %esp,   %ebp
+    movq    8(%ebp), %eax
+    
+    cmpl    $1,     %eax
+    je      end_factorial
+    decl    %eax
+    pushl   %eax
     call    factorial
-    movq 8(%rbp), %rbx
-    imull %ebx, %eax
+    movl    8(%ebp), %ebx
+    imull   %ebx,   %eax
 end_factorial:
-    movq %rbp, %rsp
-    popq %rbp
     ret
