@@ -208,13 +208,83 @@ printd:
 	cmpi	r0, 0		;is it 0?
 	jnz	print0
 	ret			;do nothing for the leading 0
-print0:	sys	printn
+print0:	call	printnum
 	ldi	r0, 0x2E
 	stm	tascii, r0	
 	sys	putchar		;print "."
 	ldi	r4, 0		;reset flag
 	ret
-print1:	sys	printn
+print1:	call 	printnum
 	ret
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;sys9: Print a number
+;inputs: TNUM, TX, TY, FORMAT (0=dec, 1=hex)
+;outputs: TX and TY holds new cursor position on screen
+;The number display is correct up to (absolute value)
+;9999999999 or 10^10 - 1.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+printnum:
+	push	r0
+	push	r5		;print decimal numbers
+	push	r6
+	push	r7
+	ldm	r5, TNUM	;copy number to r5
+	adi	r5, 0		;check if negative number
+	jns	pn0
+	ldi	r6, 0
+	sub	r6, r5
+	mov	r5, r6		;negate r5
+	ldi	r0, 0x2D
+	stm	tascii, r0	;print '-' sign
+	sys	putchar		
+pn0:	ldi	r7, 1		;leading zero flag
+	ldh	r6, 0x3B9A	;r6=current divisor=1000000000
+	ldl	r6, 0xCA00	;10^9 digit
+	call	pns
+	ldh	r6, 0x05F5	;r6=current divisor=100000000
+	ldl	r6, 0xE100	;10^8 digit
+	call	pns
+	ldh	r6, 0x0098	;r6=current divisor=10000000
+	ldl	r6, 0x9680	;10^7 digit
+	call	pns
+	ldh	r6, 0x000F	;r6=current divisor=1000000
+	ldl	r6, 0x4240	;10^6 digit
+	call	pns
+	ldh	r6, 0x0001	;r6=current divisor=100000
+	ldl	r6, 0x86A0	;10^5 digit
+	call	pns
+	ldi	r6, 0x2710	;r6=current divisor=10000, 10^4 digit
+	call	pns
+	ldi	r6, 0x03E8	;r6=current divisor=1000, 10^3 digit
+	call	pns
+	ldi	r6, 0x0064	;r6=current divisor=100, 10^2 digit
+	call	pns
+	ldi	r6, 0x000A	;r6=current divisor=10, 10^1 digit
+	call	pns
+	adi	r5, 0x30
+	stm	tascii, r5
+	sys	putchar		;print the ones digit
+	pop	r7
+	pop	r6
+	pop	r5
+	pop	r0
+	ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;subroutine examines and prints one digit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+pns:	ldi	r0, 0		;initialize count
+pns1:	sub	r5, r6
+	js	pns2		;until result is negative
+	adi	r0, 1		;not negative, +1
+	jmp	pns1	
+pns2:	add	r5, r6		;restore
+	adi	r7, 0		;check leading zero flag
+	jz	pns3
+	adi	r0, 0
+	jz	pns4		;do not print leading zeros
+	ldi	r7, 0		;no more leading zero		
+pns3:	adi	r0, 0x30	;make it ASCII
+	stm	tascii, r0	;print one digit
+	sys	putchar
+pns4:	ret
 

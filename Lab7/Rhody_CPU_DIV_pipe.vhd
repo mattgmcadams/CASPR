@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity Rhody_CPU_pipe is 
+entity Rhody_CPU_DIV_pipe is 
   port (	clk		: in	std_logic;
 			rst		: in	std_logic;
 			MEM_ADR	: out	std_logic_vector(31 downto 0);
@@ -15,7 +15,7 @@ entity Rhody_CPU_pipe is
 		);
 end;
 
-architecture Structural of Rhody_CPU_pipe is
+architecture Structural of Rhody_CPU_DIV_pipe is
 -- state machine: CPU_state
 type State_type is (S1, S2);
 signal update, stage1, stage2, stage3, stage4, stage5: State_type;
@@ -151,6 +151,7 @@ if rst='1' then
 	IR2 <= x"00000000";
 	IR3 <= x"00000000";
 	IR4 <= x"00000000";
+	IR5 <= x"00000000";
 elsif clk'event and clk = '1' then
 
 	case update is
@@ -164,6 +165,7 @@ elsif clk'event and clk = '1' then
 			end if;
 			IR3 <= IR2;
 			IR4 <= IR3;
+			IR5 <= IR4;
 			update <= S1;
 		when others =>
 			null;
@@ -337,8 +339,8 @@ elsif clk'event and clk = '1' then
 	case stage5 is
 		when S1 =>
 			if (Opcode5=DIV) then
-				register_file(to_integer(unsigned(RX5)))<=quotient;
-				register_file(to_integer(unsigned(RY5)))<=remain;
+				register_file(to_integer(unsigned(RX5))) <= quotient;
+				register_file(to_integer(unsigned(RY5))) <= remain;
 				Z <= dzero;		S <= quotient(31);		--update CC
 			elsif (Opcode5=MODU) then
 				Z <= mzero;										--update CC

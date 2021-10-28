@@ -147,6 +147,7 @@ if rst='1' then
 	IR2 <= x"00000000";
 	IR3 <= x"00000000";
 	IR4 <= x"00000000";
+	IR5 <= x"00000000";
 elsif clk'event and clk = '1' then
 
 	case update is
@@ -164,6 +165,7 @@ elsif clk'event and clk = '1' then
 			end if;
 			IR3 <= IR2;
 			IR4 <= IR3;
+			IR5 <= IR4;
 			update <= S1;
 		when others =>
 			null;

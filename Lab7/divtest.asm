@@ -40,6 +40,4 @@ init:
 	div	r0, r1
 	stm	tnum, r0
 	sys	printn
-	stm	tnum, r1
-	sys	printn
 exit:	jmp	exit
