@@ -127,6 +127,7 @@ init:   sys     clearg
         stm     y1,     r1
         stm     rad,    r2
         sys     scircle
+exit:	jmp	exit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;draw a solid rectangle
 ;inputs: r0=X1, r1=Y1, r2=X2, r3=Y2

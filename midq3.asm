@@ -116,7 +116,7 @@ init:
         call    factorial
 
 ;   i++
-;   stop when stack is full?
+;   stop when overflow
 ; print N
 ; print N!
 
