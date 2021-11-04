@@ -281,35 +281,22 @@ sch1:	ldix	r0, r2, m512
 	jnz	sch1
 ;Process the next 48 entrances
 ;R7 is currently the pointer to buffer (W)
-	;ldi	r2, 48		;loop count
-	;ldi	r7, buffer			
-	;add	r7, r2				; i = 16
 sch2:	mov	r1, r2				; r1 = buffer[i]
-	adi	r1, 0xFFFE	;t-2		
-	;ldr	r0, r1		;r0=W(t-2)	
-	ldix	r0, r1, buffer
-	call	sig1		;r0=sig1(W(t-2)) 
-	;mov	r1, r7
+	adi	r1, 0xFFFE	;t-2			
+	ldix	r0, r1, buffer  ;r0=W(t-2)	
+	sig1	r0		;r0=sig1(W(t-2)) 
 	adi	r1, 0xFFFB	;t-7
-	;ldr	r3, r1		;r3=W(t-7)
-	ldix	r3, r1, buffer
+	ldix	r3, r1, buffer	;r3=W(t-7)
 	add	r3, r0		;r3=sig1(W(t-2))+W(t-7)
-	;mov	r1, r7
 	adi	r1, 0xFFF8	;t-15
-	;ldr	r0, r1		;r0=W(t-15)
-	ldix	r0, r1, buffer
-	call	sig0		;r0=sig0(W(t-15))
-	;mov	r1, r7
+	ldix	r0, r1, buffer	;r0=W(t-15)
+	sig0	r0		;r0=sig0(W(t-15))
 	adi	r1, 0xFFFF	;t-16
-	;ldr	r4, r1		;r4=W(t-16)
 	ldix	r4, r1, buffer
 	add	r4, r0		;r4=sig1(W(t-15))+W(t-16)
 	add	r3, r4		
 ;;;;;;;;;r3=sig1(W(t-2))+W(t-7)+sig1(W(t-15))+W(t-16)
-	;str	r7, r3
 	stix	r2, r3, buffer
-	;adi	r7, 1
-	;adi	r2, 0xFFFF
 	adi	r2, 1
 	cmpi	r2, 64
 	jnz	sch2
@@ -321,21 +308,11 @@ sch2:	mov	r1, r2				; r1 = buffer[i]
 ;The working variables are defined in sequence and 
 ;work like a table
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;ldi	r5, Hinit	;r5=pointer to init H
-	;ldi	r6, wva		;r6=pointer to working variables
-	;ldi	r7, h0		;r7=pointer to hash values
-	;ldi	r3, 8		;loop count
+
 	ldi	r3, 0		;index
-sch3:	;ldr	r0, r5
-	ldix	r0, r3, Hinit
-	;str	r6, r0
+sch3:	ldix	r0, r3, Hinit
 	stix	r3, r0, wva
-	;str	r7, r0		
 	stix	r3, r0, h0
-	;adi	r5, 1
-	;adi	r6, 1
-	;adi	r7, 1
-	;adi	r3, 0xFFFF
 	adi	r3, 1
 	cmpi	r3, 8
 	jnz	sch3
@@ -345,33 +322,28 @@ sch3:	;ldr	r0, r5
 ;	R6 is reserved as pointer to K
 ;	R7 is reserved as pointer to W
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;ldi	r3, 64		;the loop count
 	ldi	r3, 0		;index
-	;ldi	r7, buffer	;r7=pointer to W
-	;ldi	r6, k256	;r6=pointer to K
 sch4:	ldm	r0, wve		;r0=e
-	call	sum1		;r0=sum1(e)
+	sum1	r0		;r0=sum1(e)
 	ldm	r4, wvh		;r4=h
 	add	r4, r0		;r4=h+sum1(e)
 	ldm	r0, wve		;r0=e
 	ldm	r1, wvf		;r1=f
 	ldm	r2, wvg		;r2=g
-	call	ch		;r0=Ch(e,f,g)
+	ch	r0, r1, r2		;r0=Ch(e,f,g)
 	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)
-	;ldr	r0, r6
 	ldix	r0, r3, k256
 	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)+K
-	;ldr	r0, r7
 	ldix 	r0, r3, buffer
 	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)+K+W
 	stm	t1, r4		;T1=h+sum1(e)+Ch(e,f,g)+K+W
 	ldm	r0, wva		;r0=a
-	call	sum0		
+	sum0	r0		
 	mov	r4, r0		;r4=sum0(a)
 	ldm	r0, wva		;r0=a
 	ldm	r1, wvb		;r1=b
 	ldm	r2, wvc		;r2=c
-	call	maj		;r0=Maj(a,b,c)
+	maj	r0, r1, r2	;r0=Maj(a,b,c)
 	add	r4, r0		;r4=sum0(a)+Maj(a,b,c)
 	stm	t2, r4		;T2=sum0(a)+Maj(a,b,c)
 	ldm	r0, wvg
@@ -394,25 +366,15 @@ sch4:	ldm	r0, wve		;r0=e
 	ldm	r1, t2
 	add	r0, r1
 	stm	wva, r0		;a <= T1 + T2
-	;adi	r6, 1		;inc pointer to K
-	;adi	r7, 1		;inc pointer to W
-	;adi	r3, 0xFFFF
 	adi	r3, 1
 	cmpi	r3, 64
 	jnz	sch4
 ;calculate the hash values
-	;ldi	r1, wva		;r1=pointer to working variables
-	;ldi	r2, h0		;r2=pointer to hash values
 	ldi	r5, 0		;index
-sch5:	;ldr	r0, r1
-	;ldr	r4, r2
-	ldix	r0, r5, wva
+sch5:	ldix	r0, r5, wva
 	ldix	r4, r5, h0
 	add	r0, r4
-	;str	r2, r0	
 	stix	r5, r0, h0
-	;adi	r1, 1
-	;adi	r2, 1
 	adi	r5, 1
 	cmpi	r5, 8
 	jnz	sch5
