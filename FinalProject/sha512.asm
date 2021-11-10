@@ -97,6 +97,7 @@
 .define T2	0x08E3		;temp2
 .define T3	0x08E4		;temp3
 .define T3l 	0x08E5		;temp3 lower
+.define oldx	0x08E6		;for wait function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;SHA512_time_trial:
 ;The HASH subroutine is checked first with
@@ -135,7 +136,7 @@ test2:
 	ldi	r0, 	0
 	stm	count, r0
 	ldi	r0, 	1
-	stm	time0, 	r0	;turn on 1-second timer
+	stm	time0, 	r0		;turn on 1-second timer
 ;Prepare the random inputs;;;;;;;;;;;;;;;;;;;;;;;;
 sha1:	ldi	r5, 	m1024		;pointer to message buffer
 	ldi	r2, 	16
@@ -716,17 +717,17 @@ sch1:
 	adi	r5,	1 		;m1024[i+1] (lower)
 	ldr	r1,	r5
 	str	r7,	r0
-	add	r7,	1
+	adi	r7,	1
 	str	r7,	r1
 	adi	r5,	1
 	adi	r7,	1
 	adi	r2,	0xFFFF
 	jnz	sch1
-;Process the next 62 entrances
+;Process the next 64 entrances
 ;R7 is currently the pointer to buffer (W)
 ;80 - 64 = 14, 48 + 14 = 62 (48 originally, 160 words so 80 entries)
 ;64 words -> 160 words; 64 entries -> 80 entries
-	ldi	r2, 	62		;loop count
+	ldi	r2, 	64		;loop count
 sch2:
 	mov	r6,	r7
 	adi	r6,	0xFFFC		;t-2 (-4)
@@ -915,3 +916,32 @@ sch5:
 	jnz	sch5
 	ret
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;wait for touch screen sensor;Accept next touch only if TX1 changes!
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+wait:	push 	r0
+	push 	r1
+	ldi	r0, 0
+	ldh	r0, 0x10
+dly:	adi	r0, 0xFFFF
+	jnz	dly
+	ldm	r0, trdy
+	cmpi	r0, 1
+	jz	wait
+wait0:
+	ldm	r0, trdy
+	cmpi	r0, 1
+	jz	wait0
+	ldm	r0, tcnt
+	cmpi	r0, 1
+	jnz	wait
+	ldm	r0, tx1
+	ldm	r1, oldx
+	cmp	r0, r1
+	jz	wait		;no respond to old touch
+	stm	oldx, r0	;update oldx
+	pop	r1
+	pop	r0
+	ret
