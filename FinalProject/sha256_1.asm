@@ -1,6 +1,6 @@
 .arch rhody		;use rhody.cfg
 .outfmt hex		;output format is hex
-.memsize 2048		;specify 2K words
+.memsize 1024		;specify 1K words
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Memory addresses for Rhody System I/O devices
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -146,34 +146,22 @@ wrong_stop:
 ;pre-defined test message: this is a test
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 test_message:
-	word	0x74686973	;this
-	word	0x20697320	; is 
-	word	0x61207465	;a te
-	word	0x73748000	;st
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000000
-	word	0x00000070	;message lenth in bits
+	dword	0x7468697320697320	;this is
+	dword	0x6120746573748000	;a test
+	dword	0x00000000
+	dword	0x00000000
+	dword	0x00000000
+	dword	0x00000000
+	dword	0x00000000
+	dword	0x00000070	;message lenth in bits
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Hash for pre-define test message
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 answer:
-	word	0x2e997585
-	word	0x48972a8e
-	word	0x8822ad47
-	word	0xfa1017ff
-	word	0x72f06f3f
-	word	0xf6a01685
-	word	0x1f45c398
-	word	0x732bc50c
+	dword	0x2e99758548972a8e
+	dword	0x8822ad47fa1017ff
+	dword	0x72f06f3ff6a01685
+	dword	0x1f45c398732bc50c
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Hash per second
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -188,80 +176,45 @@ hashps:
 	byte	0x00
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-K256:	word	0x428a2f98	;k0	K Constant
-	word	0x71374491	;k1
-	word	0xb5c0fbcf	;k2
-	word	0xe9b5dba5	;k3
-	word	0x3956c25b	;k4
-	word	0x59f111f1	;k5
-	word	0x923f82a4	;k6
-	word	0xab1c5ed5	;k7
-	word	0xd807aa98	;k8
-	word	0x12835b01	;k9
-	word	0x243185be	;k10
-	word	0x550c7dc3	;k11
-	word	0x72be5d74	;k12
-	word	0x80deb1fe	;k13
-	word	0x9bdc06a7	;k14
-	word	0xc19bf174	;k15
-	word	0xe49b69c1	;k16
-	word	0xefbe4786	;k17
-	word	0x0fc19dc6	;k18
-	word	0x240ca1cc	;k19
-	word	0x2de92c6f	;k20
-	word	0x4a7484aa	;k21
-	word	0x5cb0a9dc	;k22
-	word	0x76f988da	;k23
-	word	0x983e5152	;k24
-	word	0xa831c66d	;k25
-	word	0xb00327c8	;k26
-	word	0xbf597fc7	;k27
-	word	0xc6e00bf3	;k28
-	word	0xd5a79147	;k29
-	word	0x06ca6351	;k30
-	word	0x14292967	;k31
-	word	0x27b70a85	;k32
-	word	0x2e1b2138	;k33
-	word	0x4d2c6dfc	;k34
-	word	0x53380d13	;k35
-	word	0x650a7354	;k36
-	word	0x766a0abb	;k37
-	word	0x81c2c92e	;k38
-	word	0x92722c85	;k39
-	word	0xa2bfe8a1	;k40
-	word	0xa81a664b	;k41
-	word	0xc24b8b70	;k42
-	word	0xc76c51a3	;k43
-	word	0xd192e819	;k44
-	word	0xd6990624	;k45
-	word	0xf40e3585	;k46
-	word	0x106aa070	;k47
-	word	0x19a4c116	;k48
-	word	0x1e376c08	;k49
-	word	0x2748774c	;k50
-	word	0x34b0bcb5	;k51
-	word	0x391c0cb3	;k52
-	word	0x4ed8aa4a	;k53
-	word	0x5b9cca4f	;k54
-	word	0x682e6ff3	;k55
-	word	0x748f82ee	;k56
-	word	0x78a5636f	;k57
-	word	0x84c87814	;k58
-	word	0x8cc70208	;k59
-	word	0x90befffa	;k60
-	word	0xa4506ceb	;k61
-	word	0xbef9a3f7	;k62
-	word	0xc67178f2	;k63
+K256:
+	dword	0x428a2f9871374491	;k 0- 1	K Constant
+	dword	0xb5c0fbcfe9b5dba5	;k 2- 3
+	dword	0x3956c25b59f111f1	;k 4- 5
+	dword	0x923f82a4ab1c5ed5	;k 6- 7
+	dword	0xd807aa9812835b01	;k 8- 9
+	dword	0x243185be550c7dc3	;k10-11
+	dword	0x72be5d7480deb1fe	;k12-13
+	dword	0x9bdc06a7c19bf174	;k14-15
+	dword	0xe49b69c1efbe4786	;k16-17
+	dword	0x0fc19dc6240ca1cc	;k18-19
+	dword	0x2de92c6f4a7484aa	;k20-21
+	dword	0x5cb0a9dc76f988da	;k22-23
+	dword	0x983e5152a831c66d	;k24-25
+	dword	0xb00327c8bf597fc7	;k26-27
+	dword	0xc6e00bf3d5a79147	;k28-29
+	dword	0x06ca635114292967	;k30-31
+	dword	0x27b70a852e1b2138	;k32-33
+	dword	0x4d2c6dfc53380d13	;k34-35
+	dword	0x650a7354766a0abb	;k36-37
+	dword	0x81c2c92e92722c85	;k38-39
+	dword	0xa2bfe8a1a81a664b	;k40-41
+	dword	0xc24b8b70c76c51a3	;k42-43
+	dword	0xd192e819d6990624	;k44-45
+	dword	0xf40e3585106aa070	;k46-47
+	dword	0x19a4c1161e376c08	;k48-49
+	dword	0x2748774c34b0bcb5	;k50-51
+	dword	0x391c0cb34ed8aa4a	;k52-53
+	dword	0x5b9cca4f682e6ff3	;k54-55
+	dword	0x748f82ee78a5636f	;k56-57
+	dword	0x84c878148cc70208	;k58-59
+	dword	0x90befffaa4506ceb	;k60-61
+	dword	0xbef9a3f7c67178f2	;k62-63
 	byte	0x00
 Hinit:
-	word	0x6a09e667	;H0	initial Hash
-	word	0xbb67ae85	;H1
-	word	0x3c6ef372	;H2
-	word	0xa54ff53a	;H3
-	word	0x510e527f	;H4
-	word	0x9b05688c	;H5
-	word	0x1f83d9ab	;H6
-	word	0x5be0cd19	;H7
+	word	0x6a09e667bb67ae85	;H0-1	initial Hash
+	word	0x3c6ef372a54ff53a	;H2-3
+	word	0x510e527f9b05688c	;H4-5
+	word	0x1f83d9ab5be0cd19	;H6-7
 	byte	0x00
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -273,32 +226,32 @@ Hinit:
 ;wva, wvb, ..., wvh = working variables a to h
 ;K = K256 the 64-words constant
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HASH:	ldi	r2, 0
-sch1:	ldix	r0, r2, m512
-	stix	r2, r0, buffer
-	adi	r2, 1
-	cmpi	r2, 16
+HASH:	ldi	r2, 	0
+sch1:	ldix	r0, 	r2, 	m512
+	stix	r2, 	r0, 	buffer
+	adi	r2, 	1
+	cmpi	r2, 	16
 	jnz	sch1
 ;Process the next 48 entrances
 ;R7 is currently the pointer to buffer (W)
-sch2:	mov	r1, r2				; r1 = buffer[i]
-	adi	r1, 0xFFFE	;t-2			
-	ldix	r0, r1, buffer  ;r0=W(t-2)	
-	sig1	r0		;r0=sig1(W(t-2)) 
-	adi	r1, 0xFFFB	;t-7
-	ldix	r3, r1, buffer	;r3=W(t-7)
-	add	r3, r0		;r3=sig1(W(t-2))+W(t-7)
-	adi	r1, 0xFFF8	;t-15
-	ldix	r0, r1, buffer	;r0=W(t-15)
-	sig0	r0		;r0=sig0(W(t-15))
-	adi	r1, 0xFFFF	;t-16
-	ldix	r4, r1, buffer
-	add	r4, r0		;r4=sig1(W(t-15))+W(t-16)
-	add	r3, r4		
+sch2:	mov	r1, 	r2		; r1 = buffer[i]
+	adi	r1, 	0xFFFE		;t-2			
+	ldix	r0, 	r1, 	buffer  ;r0=W(t-2)	
+	sig1	r0			;r0=sig1(W(t-2)) 
+	adi	r1, 	0xFFFB		;t-7
+	ldix	r3, 	r1, 	buffer	;r3=W(t-7)
+	add	r3, 	r0		;r3=sig1(W(t-2))+W(t-7)
+	adi	r1, 	0xFFF8		;t-15
+	ldix	r0, 	r1, 	buffer	;r0=W(t-15)
+	sig0	r0			;r0=sig0(W(t-15))
+	adi	r1, 	0xFFFF		;t-16
+	ldix	r4, 	r1, 	buffer
+	add	r4, 	r0		;r4=sig1(W(t-15))+W(t-16)
+	add	r3, 	r4		
 ;;;;;;;;;r3=sig1(W(t-2))+W(t-7)+sig1(W(t-15))+W(t-16)
-	stix	r2, r3, buffer
-	adi	r2, 1
-	cmpi	r2, 64
+	stix	r2, 	r3, 	buffer
+	adi	r2,	1
+	cmpi	r2, 	64
 	jnz	sch2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;At this point, we have prepared the 64 32-bit 
@@ -309,12 +262,12 @@ sch2:	mov	r1, r2				; r1 = buffer[i]
 ;work like a table
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	ldi	r3, 0		;index
-sch3:	ldix	r0, r3, Hinit
-	stix	r3, r0, wva
-	stix	r3, r0, h0
-	adi	r3, 1
-	cmpi	r3, 8
+	ldi	r3, 	0		;index
+sch3:	ldix	r0, 	r3, 	Hinit
+	stix	r3, 	r0, 	wva
+	stix	r3, 	r0, 	h0
+	adi	r3, 	1
+	cmpi	r3, 	8
 	jnz	sch3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Begin the big loop of 0 to 63
@@ -322,62 +275,62 @@ sch3:	ldix	r0, r3, Hinit
 ;	R6 is reserved as pointer to K
 ;	R7 is reserved as pointer to W
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	ldi	r3, 0		;index
-sch4:	ldm	r0, wve		;r0=e
-	sum1	r0		;r0=sum1(e)
-	ldm	r4, wvh		;r4=h
-	add	r4, r0		;r4=h+sum1(e)
-	ldm	r0, wve		;r0=e
-	ldm	r1, wvf		;r1=f
-	ldm	r2, wvg		;r2=g
-	ch	r0, r1, r2		;r0=Ch(e,f,g)
-	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)
-	ldix	r0, r3, k256
-	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)+K
-	ldix 	r0, r3, buffer
-	add	r4, r0		;r4=h+sum1(e)+Ch(e,f,g)+K+W
-	stm	t1, r4		;T1=h+sum1(e)+Ch(e,f,g)+K+W
-	ldm	r0, wva		;r0=a
+	ldi	r3, 	0		;index
+sch4:	ldm	r0, 	wve		;r0=e
+	sum1	r0			;r0=sum1(e)
+	ldm	r4, 	wvh		;r4=h
+	add	r4, 	r0		;r4=h+sum1(e)
+	ldm	r0, 	wve		;r0=e
+	ldm	r1, 	wvf		;r1=f
+	ldm	r2, 	wvg		;r2=g
+	ch	r0, 	r1, 	r2	;r0=Ch(e,f,g)
+	add	r4, 	r0		;r4=h+sum1(e)+Ch(e,f,g)
+	ldix	r0, 	r3, 	k256
+	add	r4, 	r0		;r4=h+sum1(e)+Ch(e,f,g)+K
+	ldix 	r0, 	r3, 	buffer
+	add	r4, 	r0		;r4=h+sum1(e)+Ch(e,f,g)+K+W
+	stm	t1, 	r4		;T1=h+sum1(e)+Ch(e,f,g)+K+W
+	ldm	r0, 	wva		;r0=a
 	sum0	r0		
-	mov	r4, r0		;r4=sum0(a)
-	ldm	r0, wva		;r0=a
-	ldm	r1, wvb		;r1=b
-	ldm	r2, wvc		;r2=c
-	maj	r0, r1, r2	;r0=Maj(a,b,c)
-	add	r4, r0		;r4=sum0(a)+Maj(a,b,c)
-	stm	t2, r4		;T2=sum0(a)+Maj(a,b,c)
-	ldm	r0, wvg
-	stm	wvh, r0		;h <= g
-	ldm	r0, wvf
-	stm	wvg, r0		;g <= f
-	ldm	r0, wve
-	stm	wvf, r0		;f <= e
-	ldm	r0, wvd
-	ldm	r1, t1
-	add	r0, r1
-	stm	wve, r0		;e <= d + T1
-	ldm	r0, wvc
-	stm	wvd, r0		;d <= c
-	ldm	r0, wvb
-	stm	wvc, r0		;c <= b
-	ldm	r0, wva
-	stm	wvb, r0		;b <= a
-	ldm	r0, t1
-	ldm	r1, t2
-	add	r0, r1
-	stm	wva, r0		;a <= T1 + T2
-	adi	r3, 1
-	cmpi	r3, 64
+	mov	r4, 	r0		;r4=sum0(a)
+	ldm	r0, 	wva		;r0=a
+	ldm	r1, 	wvb		;r1=b
+	ldm	r2, 	wvc		;r2=c
+	maj	r0, 	r1, 	r2	;r0=Maj(a,b,c)
+	add	r4, 	r0		;r4=sum0(a)+Maj(a,b,c)
+	stm	t2, 	r4		;T2=sum0(a)+Maj(a,b,c)
+	ldm	r0, 	wvg
+	stm	wvh,	r0		;h <= g
+	ldm	r0, 	wvf
+	stm	wvg,	r0		;g <= f
+	ldm	r0, 	wve
+	stm	wvf,	r0		;f <= e
+	ldm	r0, 	wvd
+	ldm	r1, 	t1
+	add	r0, 	r1
+	stm	wve, 	r0		;e <= d + T1
+	ldm	r0, 	wvc
+	stm	wvd,	r0		;d <= c
+	ldm	r0, 	wvb
+	stm	wvc, 	r0		;c <= b
+	ldm	r0, 	wva
+	stm	wvb,	r0		;b <= a
+	ldm	r0, 	t1
+	ldm	r1, 	t2
+	add	r0, 	r1
+	stm	wva,	 r0		;a <= T1 + T2
+	adi	r3, 	1
+	cmpi	r3, 	64
 	jnz	sch4
 ;calculate the hash values
-	ldi	r5, 0		;index
-sch5:	ldix	r0, r5, wva
-	ldix	r4, r5, h0
-	add	r0, r4
-	stix	r5, r0, h0
-	adi	r5, 1
-	cmpi	r5, 8
-	jnz	sch5
+	ldi	r5, 	0		;index
+sch5:	ldix	r0, 	r5, 	wva
+	ldix	r4, 	r5, 	h0
+	add	r0, 	r4
+	stix	r5, 	r0, 	h0
+	adi	r5, 	1
+	cmpi	r5, 	8
+	jnz	sch5	
 	ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -387,12 +340,12 @@ sch5:	ldix	r0, r5, wva
 ;affects: r5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ch:	push	r6
-	mov	r5, r0
-	and	r0, r1		;r0=x and y
-	ldi	r6, 0xFFFF
-	xor	r5, r6		;r5=not x
-	and	r5, r2		;r5=not x and z
-	xor	r0, r5
+	mov	r5, 	r0
+	and	r0, 	r1		;r0=x and y
+	ldi	r6, 	0xFFFF
+	xor	r5, 	r6		;r5=not x
+	and	r5, 	r2		;r5=not x and z
+	xor	r0, 	r5
 	pop	r6
 	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -401,12 +354,12 @@ ch:	push	r6
 ;output: r0=Maj(x, y, z)
 ;affects: r5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-maj:	mov	r5, r0
-	and	r0, r1		;r0=x and y
-	and	r5, r2		;r5=x and z
-	and	r1, r2		;r1=y and z
-	xor	r0, r5	
-	xor	r0, r1
+maj:	mov	r5, 	r0
+	and	r0, 	r1		;r0=x and y
+	and	r5, 	r2		;r5=x and z
+	and	r1, 	r2		;r1=y and z
+	xor	r0, 	r5	
+	xor	r0, 	r1
 	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Function sum0(x)
@@ -414,13 +367,13 @@ maj:	mov	r5, r0
 ;output: r0=sum0(x)
 ;affects: r5, r1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-sum0:	mov	r5, r0
-	mov	r1, r0
-	ror	r0, 2		;r0=ROTR^2(x)
-	ror	r5, 13		;r5=ROTR^13(x)
-	ror	r1, 22		;r1=ROTR^22(x)
-	xor	r0, r5
-	xor	r0, r1
+sum0:	mov	r5, 	r0
+	mov	r1, 	r0
+	ror	r0, 	2		;r0=ROTR^2(x)
+	ror	r5, 	13		;r5=ROTR^13(x)
+	ror	r1, 	22		;r1=ROTR^22(x)
+	xor	r0, 	r5
+	xor	r0, 	r1
 	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Function sum1(x)
@@ -428,13 +381,13 @@ sum0:	mov	r5, r0
 ;output: r0=sum1(x)
 ;affects: r5, r1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-sum1:	mov	r5, r0
-	mov	r1, r0
-	ror	r0, 6		;r0=ROTR^6(x)
-	ror	r5, 11		;r5=ROTR^11(x)
-	ror	r1, 25		;r6=ROTR^25(x)
-	xor	r0, r5
-	xor	r0, r1
+sum1:	mov	r5, 	r0
+	mov	r1, 	r0
+	ror	r0, 	6		;r0=ROTR^6(x)
+	ror	r5, 	11		;r5=ROTR^11(x)
+	ror	r1, 	25		;r6=ROTR^25(x)
+	xor	r0, 	r5
+	xor	r0, 	r1
 	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Function sig0(x)
@@ -442,16 +395,16 @@ sum1:	mov	r5, r0
 ;output: r0=sig0(x)
 ;affects: r4, r5, r6
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-sig0:	mov	r5, r0
-	mov	r6, r0
-	ror	r0, 7		;r0=ROTR^7(x)
-	ror	r5, 18		;r5=ROTR^18(x)
-	ror	r6, 3		;r6=ROTR^3(x)
-	ldh	r4, 0x1FFF	
-	ldl	r4, 0xFFFF	;mask out 3 MSB
-	and	r6, r4		;r6=SHR^3(x)
-	xor	r0, r5
-	xor	r0, r6
+sig0:	mov	r5, 	r0
+	mov	r6, 	r0
+	ror	r0, 	7		;r0=ROTR^7(x)
+	ror	r5, 	18		;r5=ROTR^18(x)
+	ror	r6, 	3		;r6=ROTR^3(x)
+	ldh	r4, 	0x1FFF	
+	ldl	r4, 	0xFFFF		;mask out 3 MSB
+	and	r6, 	r4		;r6=SHR^3(x)
+	xor	r0, 	r5
+	xor	r0, 	r6
 	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Function sig1(x)
@@ -459,15 +412,15 @@ sig0:	mov	r5, r0
 ;output: r0=sig1(x)
 ;affects: r4, r5, r6
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-sig1:	mov	r5, r0
-	mov	r6, r0
-	ror	r0, 17		;r0=ROTR^17(x)
-	ror	r5, 19		;r5=ROTR^19(x)
-	ror	r6, 10		;r6=ROTR^10(x)
-	ldh	r4, 0x003F	
-	ldl	r4, 0xFFFF	;mask out 10 MSB
-	and	r6, r4		;r6=SHR^10(x)
-	xor	r0, r5
-	xor	r0, r6
+sig1:	mov	r5, 	r0
+	mov	r6, 	r0
+	ror	r0, 	17		;r0=ROTR^17(x)
+	ror	r5, 	19		;r5=ROTR^19(x)
+	ror	r6, 	10		;r6=ROTR^10(x)
+	ldh	r4, 	0x003F	
+	ldl	r4, 	0xFFFF	;mask out 10 MSB
+	and	r6, 	r4		;r6=SHR^10(x)
+	xor	r0, 	r5
+	xor	r0, 	r6
 	ret
 
