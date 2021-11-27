@@ -734,7 +734,7 @@ sch2:
 	ldr	r0,	r6		;r0=W(t-2) upper
 	adi 	r6,	1
 	ldr 	r1,	r6		;r1=W(t-2) lower
-	call	sig1			;r0 & r1 = sig1(W(t-2))
+	sig1	r0, 	r1		;r0 & r1 = sig1(W(t-2))
 	mov	r6,	r7
 	adi	r6,	0xFFF2		;t-7 (-14)
 	ldr	r4,	r6		;r4=W(t-7) upper
@@ -748,7 +748,7 @@ sch2:
 	adi 	r7,	1
 	ldr 	r1,	r7		;r1=W(t-15) lower
 	adi 	r7,	29		;reset r7
-	call 	sig0			;r0 & r1 = sig0(W(t-15))
+	sig0	r0, 	r1		;r0 & r1 = sig0(W(t-15))
 	mov 	r4,	r0		;r4 & r5 = sig0(W(t-15))
 	mov 	r5,	r1
 	mov 	r0,	r3		;r0 & r1 = sig1(W(t-2))+W(t-7)
@@ -806,7 +806,7 @@ sch3:
 sch4:
 	ldm	r0, 	wve		;r0=e
 	ldm 	r1, 	wvel		;r1=e lower
-	call	sum1			;r0 & r1=sum1(e)
+	sum1	r0, 	r1		;r0 & r1=sum1(e)
 	ldm	r4, 	wvh		;r4=h
 	ldm 	r5, 	wvhl		;r5=h lower
 	call 	ADD64			;r0 & r1 = h+sum1(e)
@@ -835,7 +835,7 @@ sch4:
 	stm 	T1l, 	r1
 	ldm	r0, 	wva		;r0=a
 	ldm 	r1, 	wval		;r1=a lower
-	call	sum0			;r0 & r1 = sum(a)
+	sum0	r0,	r1
 	stm 	T3, 	r0		;T3 = sum0(a)
 	stm 	T3, 	r1
 	ldm	r0, 	wva		;r0=a
@@ -860,6 +860,7 @@ sch4:
 	stm 	wvgl, 	r1;
 	ldm	r0, 	wve		;f <= e
 	ldm 	r1, 	wvel
+	
 	stm	wvf, 	r0
 	stm 	wvfl, 	r1
 	ldm	r0, 	wvd
